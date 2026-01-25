@@ -1,0 +1,17 @@
+[Unit]
+Description=Streamlit Messenger App
+After=network.target
+
+[Service]
+Type=simple
+User=azureuser
+WorkingDirectory=/home/azureuser/messaging_app
+Environment="PATH=/home/azureuser/messaging_app/venv/bin"
+ExecStart=/home/azureuser/messaging_app/venv/bin/streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+Restart=always
+RestartSec=3
+StandardOutput=append:/home/azureuser/messaging_app/app.log
+StandardError=append:/home/azureuser/messaging_app/error.log
+
+[Install]
+WantedBy=multi-user.target

@@ -9,6 +9,12 @@ venv/
 .venv/
 ENV/
 
+# Installed packages (virtual env in project folder)
+Lib/
+Scripts/
+Include/
+pyvenv.cfg
+
 # IDE
 .vscode/
 .idea/
