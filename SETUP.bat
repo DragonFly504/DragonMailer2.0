@@ -17,10 +17,10 @@ pause >nul
 
 echo.
 echo  [1/3] Installing Python packages...
-pip install streamlit>=1.0.0 --quiet
+python -m pip install streamlit --quiet
 if errorlevel 1 (
     echo  ⚠️  Some packages may have failed. Trying with --user flag...
-    pip install streamlit>=1.0.0 --user --quiet
+    python -m pip install streamlit --user --quiet
 )
 
 echo  [2/3] Creating config folder...
