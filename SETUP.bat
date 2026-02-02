@@ -28,13 +28,14 @@ if not exist "config" mkdir config
 
 echo  [3/3] Creating Desktop shortcut...
 
-:: Get the desktop path
+:: Get paths
 set "DESKTOP=%USERPROFILE%\Desktop"
+set "APPDIR=%CD%"
 
-:: Create a simple batch file shortcut on desktop instead
+:: Create a simple batch file shortcut on desktop
 echo @echo off > "%DESKTOP%\Dragon Mailer.bat"
-echo cd /d "%~dp0" >> "%DESKTOP%\Dragon Mailer.bat"
-echo start "" "%~dp0Start_Dragon_Mailer.bat" >> "%DESKTOP%\Dragon Mailer.bat"
+echo cd /d "%APPDIR%" >> "%DESKTOP%\Dragon Mailer.bat"
+echo call Start_Dragon_Mailer.bat >> "%DESKTOP%\Dragon Mailer.bat"
 
 echo.
 echo  ========================================
