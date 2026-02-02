@@ -28,14 +28,15 @@ if not exist "config" mkdir config
 
 echo  [3/3] Creating Desktop shortcut...
 
-:: Get paths
-set "DESKTOP=%USERPROFILE%\Desktop"
-set "APPDIR=%CD%"
+:: Write shortcut directly using PowerShell (more reliable)
+powershell -Command "$d=[Environment]::GetFolderPath('Desktop'); $p=Get-Location; Set-Content -Path \"$d\Dragon Mailer.bat\" -Value \"@echo off`r`ncd /d $p`r`ncall Start_Dragon_Mailer.bat\""
 
-:: Create a simple batch file shortcut on desktop
-echo @echo off > "%DESKTOP%\Dragon Mailer.bat"
-echo cd /d "%APPDIR%" >> "%DESKTOP%\Dragon Mailer.bat"
-echo call Start_Dragon_Mailer.bat >> "%DESKTOP%\Dragon Mailer.bat"
+if exist "%USERPROFILE%\Desktop\Dragon Mailer.bat" (
+    echo  [OK] Shortcut created successfully!
+) else (
+    echo  [!] Could not create shortcut automatically.
+    echo  [!] Just double-click Start_Dragon_Mailer.bat in this folder.
+)
 
 echo.
 echo  ========================================
