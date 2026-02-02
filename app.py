@@ -636,53 +636,52 @@ def show_login_page():
         </div>
     """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if multi_user:
-            # Multi-user login
-            st.markdown("### 🔐 User Login")
-            username = st.text_input("Username", key="login_username")
-            password = st.text_input("Password", type="password", key="login_password")
-            
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if st.button("🔓 Login", type="primary", use_container_width=True):
-                    if username and password:
-                        success, message, role = authenticate_user(username, password)
-                        if success:
-                            st.session_state.authenticated = True
-                            st.session_state.current_user = username
-                            st.session_state.user_role = role
-                            st.success(f"✅ Welcome, {username}!")
-                            time.sleep(0.5)
-                            st.rerun()
-                        else:
-                            st.error(f"❌ {message}")
-                    else:
-                        st.error("Please enter username and password")
-            with col_b:
-                if st.button("ℹ️ Help", use_container_width=True):
-                    st.info("Contact your administrator for login credentials.")
-        else:
-            # Single password mode (legacy)
-            st.markdown("### 🔐 Enter Password")
-            password = st.text_input("Password", type="password", key="login_password")
-            
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if st.button("🔓 Login", type="primary", use_container_width=True):
-                    if verify_password(password, settings.get("password_hash", "")):
-                        st.session_state.authenticated = True
-                        st.session_state.current_user = "admin"
-                        st.session_state.user_role = "admin"
-                        st.success("✅ Login successful!")
-                        time.sleep(0.5)
-                        st.rerun()
-                    else:
-                        st.error("❌ Invalid password")
-            with col_b:
-                if st.button("ℹ️ Help", use_container_width=True):
-                    st.info("Contact your administrator if you forgot your password.")
+    # Use container instead of nested columns
+    st.markdown("<div style='max-width: 400px; margin: 0 auto;'>", unsafe_allow_html=True)
+    
+    if multi_user:
+        # Multi-user login
+        st.markdown("### 🔐 User Login")
+        username = st.text_input("Username", key="login_username")
+        password = st.text_input("Password", type="password", key="login_password")
+        
+        if st.button("🔓 Login", type="primary", use_container_width=True):
+            if username and password:
+                success, message, role = authenticate_user(username, password)
+                if success:
+                    st.session_state.authenticated = True
+                    st.session_state.current_user = username
+                    st.session_state.user_role = role
+                    st.success(f"✅ Welcome, {username}!")
+                    time.sleep(0.5)
+                    st.rerun()
+                else:
+                    st.error(f"❌ {message}")
+            else:
+                st.error("Please enter username and password")
+        
+        if st.button("ℹ️ Help", use_container_width=True):
+            st.info("Contact your administrator for login credentials.")
+    else:
+        # Single password mode (legacy)
+        st.markdown("### 🔐 Enter Password")
+        password = st.text_input("Password", type="password", key="login_password")
+        
+        if st.button("🔓 Login", type="primary", use_container_width=True):
+            if verify_password(password, settings.get("password_hash", "")):
+                st.session_state.authenticated = True
+                st.session_state.current_user = "admin"
+                st.session_state.user_role = "admin"
+                st.success("✅ Login successful!")
+                time.sleep(0.5)
+                st.rerun()
+            else:
+                st.error("❌ Invalid password")
+        
+        if st.button("ℹ️ Help", use_container_width=True):
+            st.info("Contact your administrator if you forgot your password.")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ============== SCHEDULED SENDING FUNCTIONS ==============
