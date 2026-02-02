@@ -645,7 +645,7 @@ def show_login_page():
         username = st.text_input("Username", key="login_username")
         password = st.text_input("Password", type="password", key="login_password")
         
-        if st.button("🔓 Login", use_container_width=True):
+        if st.button("🔓 Login"):
             if username and password:
                 success, message, role = authenticate_user(username, password)
                 if success:
@@ -660,14 +660,14 @@ def show_login_page():
             else:
                 st.error("Please enter username and password")
         
-        if st.button("ℹ️ Help", use_container_width=True):
+        if st.button("ℹ️ Help"):
             st.info("Contact your administrator for login credentials.")
     else:
         # Single password mode (legacy)
         st.markdown("### 🔐 Enter Password")
         password = st.text_input("Password", type="password", key="login_password")
         
-        if st.button("🔓 Login", use_container_width=True):
+        if st.button("🔓 Login"):
             if verify_password(password, settings.get("password_hash", "")):
                 st.session_state.authenticated = True
                 st.session_state.current_user = "admin"
@@ -678,7 +678,7 @@ def show_login_page():
             else:
                 st.error("❌ Invalid password")
         
-        if st.button("ℹ️ Help", use_container_width=True):
+        if st.button("ℹ️ Help"):
             st.info("Contact your administrator if you forgot your password.")
     
     st.markdown("</div>", unsafe_allow_html=True)
@@ -2437,7 +2437,7 @@ def main():
             st.markdown(f"**{role_icon} Logged in as:**")
             st.markdown(f"**{current_user}**")
             
-            if st.button("🚪 Logout", use_container_width=True):
+            if st.button("🚪 Logout"):
                 st.session_state.authenticated = False
                 st.session_state.current_user = None
                 st.session_state.user_role = None
@@ -2926,7 +2926,7 @@ def main():
             
             # Send Button
             st.markdown("---")
-            if st.button("📤 Send Emails", use_container_width=True, key="send_email_btn"):
+            if st.button("📤 Send Emails", key="send_email_btn"):
                 if not sender_email or not sender_password:
                     st.error("Please enter sender credentials.")
                 elif not all_recipients:
@@ -3365,7 +3365,7 @@ def main():
                     """)
             
             # Send
-            if st.button("📤 Send SMS", use_container_width=True, key="send_sms_btn"):
+            if st.button("📤 Send SMS", key="send_sms_btn"):
                 if not sender_email or not sender_password:
                     st.error("Please enter sender credentials.")
                 elif not sms_recipients:
@@ -3507,7 +3507,7 @@ def main():
         enable_delivery_report = st.checkbox("Enable Delivery Reports", value=True)
         
         # Send button
-        if st.button("🚀 Send Azure SMS", use_container_width=True):
+        if st.button("🚀 Send Azure SMS"):
             if not AZURE_SMS_AVAILABLE:
                 st.error("Azure Communication Services SDK not installed!")
             elif not azure_connection_string:
