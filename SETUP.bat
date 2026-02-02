@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 echo.
 echo  ========================================
-echo     🐉 Dragon Mailer v2.0 - Setup
+echo     DRAGON MAILER v2.0 - Setup
 echo  ========================================
 echo.
 echo  This will:
@@ -19,7 +19,7 @@ echo.
 echo  [1/3] Installing Python packages...
 python -m pip install streamlit --quiet
 if errorlevel 1 (
-    echo  ⚠️  Some packages may have failed. Trying with --user flag...
+    echo  [!] Some packages may have failed. Trying with --user flag...
     python -m pip install streamlit --user --quiet
 )
 
@@ -46,7 +46,7 @@ del "%TEMP%\CreateShortcut.vbs"
 
 echo.
 echo  ========================================
-echo     ✅ Setup Complete!
+echo     [OK] Setup Complete!
 echo  ========================================
 echo.
 echo  A shortcut "Dragon Mailer" has been

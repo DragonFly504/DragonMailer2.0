@@ -3,8 +3,8 @@ title Dragon Mailer - Network Mode
 cd /d "%~dp0"
 echo.
 echo  ========================================
-echo     🐉 Dragon Mailer v1.1.0
-echo     NETWORK MODE - Access from any PC
+echo     DRAGON MAILER v2.0 - NETWORK MODE
+echo     Access from any PC on your network
 echo  ========================================
 echo.
 

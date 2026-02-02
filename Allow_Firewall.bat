@@ -2,7 +2,7 @@
 title Allow Dragon Mailer Through Firewall
 echo.
 echo  ========================================
-echo     🔥 Firewall Configuration
+echo     FIREWALL CONFIGURATION
 echo     Allow Dragon Mailer network access
 echo  ========================================
 echo.
@@ -16,7 +16,7 @@ pause >nul
 netsh advfirewall firewall add rule name="Dragon Mailer (Streamlit)" dir=in action=allow protocol=tcp localport=8501
 
 echo.
-echo  ✅ Firewall rule added!
+echo  [OK] Firewall rule added!
 echo  Other PCs can now connect to this PC on port 8501.
 echo.
 pause

@@ -3,7 +3,7 @@ title Dragon Mailer - Starting...
 cd /d "%~dp0"
 echo.
 echo  ========================================
-echo     🐉 Dragon Mailer v1.1.0
+echo     DRAGON MAILER v2.0
 echo     Starting your messaging app...
 echo  ========================================
 echo.
