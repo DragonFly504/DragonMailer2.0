@@ -18,6 +18,7 @@ import io
 import uuid
 import base64
 from datetime import datetime
+from typing import Union
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -273,7 +274,7 @@ DEFAULT_SMTP_PRESETS = {
 
 # ============== DATA MANAGEMENT FUNCTIONS ==============
 
-def load_json_file(filepath: Path, default: dict | list = None) -> dict | list:
+def load_json_file(filepath: Path, default: Union[dict, list] = None) -> Union[dict, list]:
     """Load JSON data from file."""
     if default is None:
         default = {}
@@ -286,7 +287,7 @@ def load_json_file(filepath: Path, default: dict | list = None) -> dict | list:
     return default
 
 
-def save_json_file(filepath: Path, data: dict | list):
+def save_json_file(filepath: Path, data: Union[dict, list]):
     """Save data to JSON file."""
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2, default=str)
