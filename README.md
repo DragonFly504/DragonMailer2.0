@@ -1,37 +1,78 @@
-# 📧 Email & SMS Messenger
+# � Dragon Mailer v2.0
 
-A Python application to send emails and SMS messages via SMTP. Includes both a **Streamlit web UI** and a **command-line interface**.
+A powerful Python application to send bulk emails and SMS messages. Includes a beautiful **Streamlit web UI** with themes, multi-user support, and scheduling.
 
-## Features
+## ✨ Features
 
-- ✉️ **Send Emails** to multiple recipients
-- 📱 **Send SMS** via carrier email-to-SMS gateways
-- 🔧 **Custom SMTP Providers** - Add your own SMTP servers
-- 🖥️ **Web UI** (Streamlit) and **CLI** versions
-- 📋 **Pre-configured** for Gmail, Outlook, Yahoo, iCloud, and more
+- ✉️ **Bulk Email Sending** - Send to hundreds of recipients
+- 📱 **SMS via Carrier Gateways** - Free SMS through email-to-SMS
+- ☁️ **Azure SMS Integration** - Professional SMS via Azure Communication Services
+- 👥 **Multi-User System** - Create accounts for different users
+- 🔐 **Password Protection** - Secure your app with login
+- 🎨 **11 Beautiful Themes** - Dark and light modes
+- ⏰ **Scheduled Sending** - Queue messages for later
+- 📊 **Message History** - Track all sent messages
+- 📈 **Email Tracking** - Track email opens
+- 🌐 **Network Access** - Use from any PC on your network
 
-## Installation
+## 🚀 Quick Start (Windows)
+
+### After Cloning:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/messaging-app.git
-cd messaging-app
+git clone https://github.com/DragonFly504/DragonMailer2.0.git
+cd DragonMailer2.0
 
-# Install dependencies
-pip install -r requirements.txt
+# Run setup (creates desktop shortcut + installs packages)
+SETUP.bat
 ```
 
-## Usage
+**That's it!** Double-click the "Dragon Mailer" shortcut on your desktop.
 
-### Web Interface (Streamlit)
+### Manual Start:
 
 ```bash
-streamlit run app.py
+# Start the app
+Start_Dragon_Mailer.bat
+
+# Or for network access (other PCs):
+Start_Network_Mode.bat
 ```
 
-Then open http://localhost:8501 in your browser.
+## 🔐 Login System
 
-### Command Line Interface
+The app supports:
+- **Single Password Mode** - One password for everyone
+- **Multi-User Mode** - Separate accounts for each user
+
+Each user gets their own isolated workspace. Enable Multi-User mode in Settings after first launch.
+
+## 📁 Files Included
+
+| File | Purpose |
+|------|---------|
+| `SETUP.bat` | First-time setup (run after clone) |
+| `Start_Dragon_Mailer.bat` | Start app (local only) |
+| `Start_Network_Mode.bat` | Start app (network access) |
+| `Allow_Firewall.bat` | Allow through Windows Firewall |
+| `app.py` | Main application |
+| `cli.py` | Command-line interface |
+
+## 🎨 Available Themes
+
+- 🐉 Dragon Dark / Light
+- 🔒 SecureMail Pro
+- 🌙 Midnight Blue
+- 🌊 Ocean Breeze
+- 🌲 Forest Green
+- 🌅 Sunset Orange
+- 💜 Purple Haze
+- 🌸 Rose Gold
+- 💚 Cyber Neon
+- ❄️ Arctic Ice
+
+## 💻 Command Line Interface
 
 ```bash
 # Send email
@@ -40,10 +81,7 @@ python cli.py email -p gmail -e you@gmail.com -t recipient@example.com -s "Subje
 # Send SMS
 python cli.py sms -p gmail -e you@gmail.com -n 5551234567 -c att -m "Hello!"
 
-# Send to multiple recipients
-python cli.py email -p gmail -e you@gmail.com -t user1@test.com,user2@test.com -m "Hi all"
-
-# Interactive mode (guided prompts)
+# Interactive mode
 python cli.py interactive
 
 # List available carriers

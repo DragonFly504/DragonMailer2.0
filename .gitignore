@@ -13,6 +13,8 @@ ENV/
 Lib/
 Scripts/
 Include/
+share/
+etc/
 pyvenv.cfg
 
 # IDE
@@ -21,8 +23,18 @@ pyvenv.cfg
 *.swp
 *.swo
 
-# Config files with credentials (don't commit passwords!)
-smtp_configs.json
+# Config files with sensitive data (don't commit!)
+config/smtp_configs.json
+config/recipients.json
+config/sent_messages.json
+config/tracking.json
+config/settings.json
+config/scheduled_tasks.json
+config/azure_sms.json
+config/users.json
+
+# Keep the config directory
+!config/.gitkeep
 
 # OS
 .DS_Store
@@ -30,3 +42,43 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Temp files
+*.tmp
+*.temp
+New Text Document.txt
+
+# Debug/temporary scripts (not part of main app)
+add_azure.py
+add_azure_ui.py
+patch.py
+fix_sidebar.py
+fix.sh
+fix_nginx.sh
+stash_diff.txt
+vps_app.py
+update_number.py
+purchase_*.py
+test_*.py
+test_*.ps1
+troubleshoot.md
+
+# PowerShell scripts (Windows admin tools - not needed for app)
+*.ps1
+
+# Temporary Azure config files
+azure_email_config.json
+azure_sms.json
+
+# Generated reports
+*_DNS_REPORT.md
+all_sent_numbers.txt
+
+# Azure/deployment docs (keep only essential ones)
+AZURE_*.md
+URGENT_FIX.md
+ENABLE_SMTP_AUTH.md
+FIX_MX_RECORDS.md
+DELIVERABILITY_GUIDE.md
+EMAIL_LIMITS_AND_QUOTAS.md
+
