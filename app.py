@@ -645,7 +645,7 @@ def show_login_page():
         username = st.text_input("Username", key="login_username")
         password = st.text_input("Password", type="password", key="login_password")
         
-        if st.button("🔓 Login", type="primary", use_container_width=True):
+        if st.button("🔓 Login", use_container_width=True):
             if username and password:
                 success, message, role = authenticate_user(username, password)
                 if success:
@@ -667,7 +667,7 @@ def show_login_page():
         st.markdown("### 🔐 Enter Password")
         password = st.text_input("Password", type="password", key="login_password")
         
-        if st.button("🔓 Login", type="primary", use_container_width=True):
+        if st.button("🔓 Login", use_container_width=True):
             if verify_password(password, settings.get("password_hash", "")):
                 st.session_state.authenticated = True
                 st.session_state.current_user = "admin"
@@ -2926,7 +2926,7 @@ def main():
             
             # Send Button
             st.markdown("---")
-            if st.button("📤 Send Emails", type="primary", use_container_width=True, key="send_email_btn"):
+            if st.button("📤 Send Emails", use_container_width=True, key="send_email_btn"):
                 if not sender_email or not sender_password:
                     st.error("Please enter sender credentials.")
                 elif not all_recipients:
@@ -3365,7 +3365,7 @@ def main():
                     """)
             
             # Send
-            if st.button("📤 Send SMS", type="primary", use_container_width=True, key="send_sms_btn"):
+            if st.button("📤 Send SMS", use_container_width=True, key="send_sms_btn"):
                 if not sender_email or not sender_password:
                     st.error("Please enter sender credentials.")
                 elif not sms_recipients:
@@ -3507,7 +3507,7 @@ def main():
         enable_delivery_report = st.checkbox("Enable Delivery Reports", value=True)
         
         # Send button
-        if st.button("🚀 Send Azure SMS", type="primary", use_container_width=True):
+        if st.button("🚀 Send Azure SMS", use_container_width=True):
             if not AZURE_SMS_AVAILABLE:
                 st.error("Azure Communication Services SDK not installed!")
             elif not azure_connection_string:
@@ -3660,7 +3660,7 @@ def main():
             with col_time:
                 schedule_time = st.time_input("Time", key="schedule_time")
             
-            if st.button("📅 Schedule Message", type="primary", key="btn_schedule"):
+            if st.button("📅 Schedule Message", key="btn_schedule"):
                 try:
                     scheduled_datetime = datetime.combine(schedule_date, schedule_time)
                     
@@ -3821,7 +3821,7 @@ def main():
             new_email = st.text_input("Default Email", placeholder="Optional - save email")
             new_pass = st.text_input("Default Password", type="password", placeholder="Optional - save password")
             
-            if st.button("💾 Save Configuration", type="primary"):
+            if st.button("💾 Save Configuration"):
                 if new_name and new_server:
                     save_smtp_config(new_name, {
                         "server": new_server,
@@ -3915,7 +3915,7 @@ def main():
                 height=150
             )
             
-            if st.button("💾 Save Recipient List", type="primary"):
+            if st.button("💾 Save Recipient List"):
                 recipients = []
                 
                 if uploaded_list:
@@ -4138,7 +4138,7 @@ def main():
                     new_pass = st.text_input("New Password", type="password", key="settings_new_pass")
                     confirm_pass = st.text_input("Confirm Password", type="password", key="settings_confirm_pass")
                     
-                    if st.button("Set Password", type="primary", key="btn_set_pass"):
+                    if st.button("Set Password", key="btn_set_pass"):
                         if new_pass == confirm_pass and len(new_pass) >= 4:
                             settings["password_hash"] = hash_password(new_pass)
                             settings["login_enabled"] = True
@@ -4226,7 +4226,7 @@ def main():
                     with col_u3:
                         new_user_role = st.selectbox("Role", ["user", "admin"], key="new_user_role")
                     
-                    if st.button("➕ Create User", type="primary", key="btn_create_user"):
+                    if st.button("➕ Create User", key="btn_create_user"):
                         if new_username and new_user_pass:
                             success, msg = create_user(new_username, new_user_pass, new_user_role)
                             if success:
