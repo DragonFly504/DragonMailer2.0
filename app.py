@@ -51,12 +51,12 @@ SCHEDULED_FILE = CONFIG_DIR / "scheduled_tasks.json"
 AZURE_SMS_CONFIG_FILE = CONFIG_DIR / "azure_sms.json"
 USERS_FILE = CONFIG_DIR / "users.json"
 
-# Default app settings
+# Default app settings - Multi-user enabled by default for security
 DEFAULT_SETTINGS = {
     "theme": "Dragon Dark",  # Default theme
-    "login_enabled": False,
+    "login_enabled": True,  # Login required by default
     "password_hash": "",  # SHA256 hash of password (legacy single-user)
-    "multi_user_enabled": False,  # Multi-user mode
+    "multi_user_enabled": True,  # Multi-user mode enabled by default
     "session_timeout": 3600,  # 1 hour
 }
 
