@@ -2015,6 +2015,207 @@ def get_theme_css(theme_name: str) -> str:
             background-color: {colors['input_bg']} !important;
         }}
         ''' if is_dark else ''])}
+        
+        /* ========== ANIMATION KEYFRAMES ========== */
+        
+        /* Rubber Band Effect - bounce/stretch animation */
+        @keyframes rubberBand {{
+            0% {{ transform: scale3d(1, 1, 1); }}
+            30% {{ transform: scale3d(1.25, 0.75, 1); }}
+            40% {{ transform: scale3d(0.75, 1.25, 1); }}
+            50% {{ transform: scale3d(1.15, 0.85, 1); }}
+            65% {{ transform: scale3d(0.95, 1.05, 1); }}
+            75% {{ transform: scale3d(1.05, 0.95, 1); }}
+            100% {{ transform: scale3d(1, 1, 1); }}
+        }}
+        @-webkit-keyframes rubberBand {{
+            0% {{ -webkit-transform: scale3d(1, 1, 1); }}
+            30% {{ -webkit-transform: scale3d(1.25, 0.75, 1); }}
+            40% {{ -webkit-transform: scale3d(0.75, 1.25, 1); }}
+            50% {{ -webkit-transform: scale3d(1.15, 0.85, 1); }}
+            65% {{ -webkit-transform: scale3d(0.95, 1.05, 1); }}
+            75% {{ -webkit-transform: scale3d(1.05, 0.95, 1); }}
+            100% {{ -webkit-transform: scale3d(1, 1, 1); }}
+        }}
+        
+        /* Elastic Slider - smooth elastic transitions */
+        @keyframes elasticSlide {{
+            0% {{ transform: translateX(0) scaleX(1); }}
+            50% {{ transform: translateX(10px) scaleX(1.1); }}
+            100% {{ transform: translateX(0) scaleX(1); }}
+        }}
+        @-webkit-keyframes elasticSlide {{
+            0% {{ -webkit-transform: translateX(0) scaleX(1); }}
+            50% {{ -webkit-transform: translateX(10px) scaleX(1.1); }}
+            100% {{ -webkit-transform: translateX(0) scaleX(1); }}
+        }}
+        
+        /* Rubber Hose - fluid organic movement */
+        @keyframes rubberHose {{
+            0%, 100% {{ transform: rotate(0deg) scaleY(1); }}
+            25% {{ transform: rotate(3deg) scaleY(1.05); }}
+            75% {{ transform: rotate(-3deg) scaleY(0.95); }}
+        }}
+        @-webkit-keyframes rubberHose {{
+            0%, 100% {{ -webkit-transform: rotate(0deg) scaleY(1); }}
+            25% {{ -webkit-transform: rotate(3deg) scaleY(1.05); }}
+            75% {{ -webkit-transform: rotate(-3deg) scaleY(0.95); }}
+        }}
+        
+        /* Bounce In - entrance animation */
+        @keyframes bounceIn {{
+            0% {{ opacity: 0; transform: scale(0.3); }}
+            50% {{ opacity: 1; transform: scale(1.05); }}
+            70% {{ transform: scale(0.9); }}
+            100% {{ transform: scale(1); }}
+        }}
+        @-webkit-keyframes bounceIn {{
+            0% {{ opacity: 0; -webkit-transform: scale(0.3); }}
+            50% {{ opacity: 1; -webkit-transform: scale(1.05); }}
+            70% {{ -webkit-transform: scale(0.9); }}
+            100% {{ -webkit-transform: scale(1); }}
+        }}
+        
+        /* Pulse Glow - subtle pulsing effect */
+        @keyframes pulseGlow {{
+            0%, 100% {{ 
+                box-shadow: 0 0 5px {colors['accent']}40, 0 0 10px {colors['accent']}20;
+                transform: scale(1);
+            }}
+            50% {{ 
+                box-shadow: 0 0 20px {colors['accent']}60, 0 0 30px {colors['accent']}40;
+                transform: scale(1.02);
+            }}
+        }}
+        @-webkit-keyframes pulseGlow {{
+            0%, 100% {{ 
+                -webkit-box-shadow: 0 0 5px {colors['accent']}40, 0 0 10px {colors['accent']}20;
+                -webkit-transform: scale(1);
+            }}
+            50% {{ 
+                -webkit-box-shadow: 0 0 20px {colors['accent']}60, 0 0 30px {colors['accent']}40;
+                -webkit-transform: scale(1.02);
+            }}
+        }}
+        
+        /* ========== ANIMATION UTILITY CLASSES ========== */
+        
+        /* Rubber Band on hover */
+        .rubber-band:hover {{
+            animation: rubberBand 0.8s ease;
+            -webkit-animation: rubberBand 0.8s ease;
+        }}
+        
+        /* Rubber Band on click */
+        .rubber-band-click:active {{
+            animation: rubberBand 0.6s ease;
+            -webkit-animation: rubberBand 0.6s ease;
+        }}
+        
+        /* Elastic Slider */
+        .elastic-slider {{
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }}
+        .elastic-slider:active {{
+            animation: elasticSlide 0.5s ease;
+            -webkit-animation: elasticSlide 0.5s ease;
+        }}
+        
+        /* Gooey Effect */
+        .gooey-effect {{
+            filter: url(#gooey);
+            -webkit-filter: url(#gooey);
+        }}
+        
+        /* Rubber Hose */
+        .rubber-hose {{
+            animation: rubberHose 2s ease-in-out infinite;
+            -webkit-animation: rubberHose 2s ease-in-out infinite;
+        }}
+        
+        /* Bounce In */
+        .bounce-in {{
+            animation: bounceIn 0.6s ease-out;
+            -webkit-animation: bounceIn 0.6s ease-out;
+        }}
+        
+        /* Pulse Glow */
+        .pulse-glow {{
+            animation: pulseGlow 2s ease-in-out infinite;
+            -webkit-animation: pulseGlow 2s ease-in-out infinite;
+        }}
+        
+        /* ========== APPLY ANIMATIONS TO UI ELEMENTS ========== */
+        
+        /* Buttons with rubber band on hover */
+        .stButton > button {{
+            transition: all 0.2s ease;
+        }}
+        .stButton > button:hover {{
+            animation: rubberBand 0.8s ease;
+            -webkit-animation: rubberBand 0.8s ease;
+        }}
+        
+        /* Slider elastic transitions */
+        .stSlider > div > div > div {{
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+        }}
+        
+        /* Cards/containers bounce in on load */
+        div[data-testid="metric-container"] {{
+            animation: bounceIn 0.6s ease-out;
+            -webkit-animation: bounceIn 0.6s ease-out;
+        }}
+        
+        /* Important action buttons with pulse glow */
+        .stButton > button[kind="primary"],
+        .stDownloadButton > button {{
+            animation: pulseGlow 3s ease-in-out infinite;
+            -webkit-animation: pulseGlow 3s ease-in-out infinite;
+        }}
+        
+        /* Tab animations */
+        .stTabs [data-baseweb="tab"] {{
+            transition: all 0.2s ease;
+        }}
+        .stTabs [data-baseweb="tab"]:hover {{
+            transform: translateY(-2px);
+            -webkit-transform: translateY(-2px);
+        }}
+        
+        /* Expander header rubber band */
+        .streamlit-expanderHeader:hover {{
+            animation: rubberBand 0.8s ease;
+            -webkit-animation: rubberBand 0.8s ease;
+        }}
+        
+        /* ========== ACCESSIBILITY: REDUCED MOTION ========== */
+        
+        @media (prefers-reduced-motion: reduce) {{
+            *,
+            *::before,
+            *::after {{
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                -webkit-animation-duration: 0.01ms !important;
+                -webkit-animation-iteration-count: 1 !important;
+                -webkit-transition-duration: 0.01ms !important;
+            }}
+            
+            /* Disable all custom animations */
+            .rubber-band:hover,
+            .rubber-band-click:active,
+            .elastic-slider:active,
+            .rubber-hose,
+            .bounce-in,
+            .pulse-glow,
+            .stButton > button:hover,
+            .streamlit-expanderHeader:hover {{
+                animation: none !important;
+                -webkit-animation: none !important;
+            }}
+        }}
     """
     
     return theme_css
@@ -2340,6 +2541,18 @@ def main():
     
     # Inject Custom CSS with current theme
     inject_custom_css(st.session_state.current_theme)
+    
+    # Add SVG gooey filter for animations
+    st.markdown('''
+        <svg style="visibility: hidden; position: absolute; width: 0; height: 0;">
+            <defs>
+                <filter id="gooey">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="gooey" />
+                </filter>
+            </defs>
+        </svg>
+    ''', unsafe_allow_html=True)
     
     # Check for scheduled tasks (background check)
     check_and_execute_scheduled_tasks()
