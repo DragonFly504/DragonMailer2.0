@@ -654,7 +654,7 @@ def show_login_page():
                     st.session_state.user_role = role
                     st.success(f"✅ Welcome, {username}!")
                     time.sleep(0.5)
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error(f"❌ {message}")
             else:
@@ -674,7 +674,7 @@ def show_login_page():
                 st.session_state.user_role = "admin"
                 st.success("✅ Login successful!")
                 time.sleep(0.5)
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("❌ Invalid password")
         
@@ -2404,7 +2404,7 @@ def main():
             st.session_state.current_theme = selected_theme
             settings["theme"] = selected_theme
             save_settings(settings)
-            st.experimental_rerun()
+            st.rerun()
         
         st.markdown("---")
         
@@ -2441,7 +2441,7 @@ def main():
                 st.session_state.authenticated = False
                 st.session_state.current_user = None
                 st.session_state.user_role = None
-                st.experimental_rerun()
+                st.rerun()
         
         st.caption(f"v1.1.0 | {datetime.now().year}")
 
@@ -3144,14 +3144,14 @@ def main():
                             if i > 0:
                                 if st.button("🗑️", key=f"sms_remove_{i}"):
                                     st.session_state.sms_entries.pop(i)
-                                    st.experimental_rerun()
+                                    st.rerun()
                         
                         if phone:
                             st.session_state.sms_entries[i] = {"phone": phone, "carrier": carrier}
                     
                     if st.button("➕ Add Another"):
                         st.session_state.sms_entries.append({"phone": "", "carrier": "Auto (Try All)"})
-                        st.experimental_rerun()
+                        st.rerun()
             
             # Collect all recipients
             sms_recipients = []
@@ -3475,7 +3475,7 @@ def main():
             }
             save_json_file(AZURE_SMS_CONFIG_FILE, new_config)
             st.success("✅ Azure configuration saved!")
-            st.experimental_rerun()
+            st.rerun()
         
         st.markdown("---")
         st.markdown("### 📱 Send Azure SMS")
@@ -3688,7 +3688,7 @@ def main():
                                 task_id = add_scheduled_task(task)
                                 st.success(f"✅ Scheduled email for {scheduled_datetime.strftime('%Y-%m-%d %H:%M')}")
                                 st.info(f"Task ID: {task_id}")
-                                st.experimental_rerun()
+                                st.rerun()
                             else:
                                 st.error("Please enter at least one recipient")
                         else:
@@ -3715,7 +3715,7 @@ def main():
                                 task_id = add_scheduled_task(task)
                                 st.success(f"✅ Scheduled SMS for {scheduled_datetime.strftime('%Y-%m-%d %H:%M')}")
                                 st.info(f"Task ID: {task_id}")
-                                st.experimental_rerun()
+                                st.rerun()
                             else:
                                 st.error("Please enter at least one phone number")
                 except Exception as e:
@@ -3773,13 +3773,13 @@ def main():
                             if st.button(f"🗑️ Cancel", key=f"cancel_{task_id}"):
                                 delete_scheduled_task(task_id)
                                 st.success("Task cancelled")
-                                st.experimental_rerun()
+                                st.rerun()
             else:
                 st.info("No scheduled tasks. Create one using the form on the left.")
             
             st.markdown("---")
             if st.button("🔄 Refresh Tasks"):
-                st.experimental_rerun()
+                st.rerun()
     
     # ============== SMTP SETTINGS TAB ==============
     with tabs[4]:
@@ -3807,7 +3807,7 @@ def main():
                         if st.button(f"🗑️ Delete", key=f"delete_smtp_{name}"):
                             delete_smtp_config(name)
                             st.success(f"Deleted '{name}'")
-                            st.experimental_rerun()
+                            st.rerun()
         
         with col2:
             st.markdown("### ➕ Add New SMTP Configuration")
@@ -3833,7 +3833,7 @@ def main():
                         "password": new_pass
                     })
                     st.success(f"✅ Saved '{new_name}'!")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Please enter a name and server.")
             
@@ -3847,7 +3847,7 @@ def main():
                     for name, config in imported.items():
                         save_smtp_config(name, config)
                     st.success(f"Imported {len(imported)} configuration(s)")
-                    st.experimental_rerun()
+                    st.rerun()
                 except Exception as e:
                     st.error(f"Error importing: {e}")
             
@@ -3897,7 +3897,7 @@ def main():
                             if st.button("🗑️ Delete", key=f"delete_list_{name}"):
                                 delete_recipient_list(name)
                                 st.success(f"Deleted '{name}'")
-                                st.experimental_rerun()
+                                st.rerun()
             else:
                 st.info("No saved recipient lists yet.")
         
@@ -3933,7 +3933,7 @@ def main():
                 if list_name and recipients:
                     save_recipient_list(list_name, recipients)
                     st.success(f"✅ Saved '{list_name}' with {len(recipients)} recipients")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Please enter a name and at least one recipient.")
     
@@ -3952,7 +3952,7 @@ def main():
                 filter_status = st.selectbox("Filter by status", ["All", "Success", "Failed"])
             with col3:
                 if st.button("🔄 Refresh"):
-                    st.experimental_rerun()
+                    st.rerun()
             
             # Apply filters
             filtered = messages
@@ -3997,7 +3997,7 @@ def main():
                 if st.button("🗑️ Clear History"):
                     save_json_file(SENT_MESSAGES_FILE, [])
                     st.success("History cleared!")
-                    st.experimental_rerun()
+                    st.rerun()
         else:
             st.info("No messages sent yet. Start sending to see history here!")
     
@@ -4098,7 +4098,7 @@ def main():
                     settings["multi_user_enabled"] = False
                     save_settings(settings)
                     st.success("Login protection disabled")
-                    st.experimental_rerun()
+                    st.rerun()
                 st.info("⚠️ Anyone can access the app without a password")
                 
             elif protection_mode == "Single Password":
@@ -4106,7 +4106,7 @@ def main():
                     settings["multi_user_enabled"] = False
                     settings["login_enabled"] = True
                     save_settings(settings)
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 st.markdown("#### Set Password")
                 
@@ -4126,7 +4126,7 @@ def main():
                                     settings["login_enabled"] = True
                                     save_settings(settings)
                                     st.success("✅ Password updated!")
-                                    st.experimental_rerun()
+                                    st.rerun()
                                 elif new_pass != confirm_pass:
                                     st.error("Passwords don't match")
                                 else:
@@ -4144,7 +4144,7 @@ def main():
                             settings["login_enabled"] = True
                             save_settings(settings)
                             st.success("✅ Password set! Login protection enabled.")
-                            st.experimental_rerun()
+                            st.rerun()
                         elif new_pass != confirm_pass:
                             st.error("Passwords don't match")
                         else:
@@ -4165,7 +4165,7 @@ def main():
                             "last_login": None
                         }
                         save_users(users)
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 st.markdown("#### 👥 User Management")
                 st.warning("⚠️ **First time?** Login with admin account, then change the password immediately!")
@@ -4211,7 +4211,7 @@ def main():
                                         success, msg = delete_user(username, current_user)
                                         if success:
                                             st.success(msg)
-                                            st.experimental_rerun()
+                                            st.rerun()
                                         else:
                                             st.error(msg)
                     
@@ -4231,7 +4231,7 @@ def main():
                             success, msg = create_user(new_username, new_user_pass, new_user_role)
                             if success:
                                 st.success(msg)
-                                st.experimental_rerun()
+                                st.rerun()
                             else:
                                 st.error(msg)
                         else:
@@ -4268,17 +4268,17 @@ def main():
                 if st.button("🗑️ Clear All Scheduled Tasks", key="btn_clear_scheduled"):
                     save_scheduled_tasks([])
                     st.success("All scheduled tasks cleared")
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 if st.button("🗑️ Clear Message History", key="btn_clear_history_settings"):
                     save_json_file(SENT_MESSAGES_FILE, [])
                     st.success("Message history cleared")
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 if st.button("🗑️ Clear Tracking Data", key="btn_clear_tracking"):
                     save_json_file(TRACKING_FILE, {})
                     st.success("Tracking data cleared")
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 st.markdown("---")
                 
@@ -4286,7 +4286,7 @@ def main():
                     save_settings(DEFAULT_SETTINGS.copy())
                     st.session_state.current_theme = DEFAULT_SETTINGS["theme"]
                     st.success("Settings reset to defaults")
-                    st.experimental_rerun()
+                    st.rerun()
         
         st.markdown("---")
         st.markdown("### ℹ️ App Information")
