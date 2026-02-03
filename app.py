@@ -74,6 +74,7 @@ THEMES = {
     "Rose Gold": {"icon": "🌸", "type": "light"},
     "Cyber Neon": {"icon": "💚", "type": "dark"},
     "Arctic Ice": {"icon": "❄️", "type": "light"},
+    "Neon Jelly": {"icon": "🟢", "type": "dark"},
 }
 
 # SMS Gateway domains for major carriers
@@ -1512,6 +1513,12 @@ def get_theme_css(theme_name: str) -> str:
             "accent_light": "#0891b2", "input_bg": "#ffffff", "select_bg": "#ecfeff",
             "select_border": "#67e8f9", "type": "light"
         },
+        "Neon Jelly": {
+            "bg": "#1a1a1a", "sidebar_bg": "#0d0d0d", "card_bg": "#242424", "border": "#3d3d3d",
+            "text": "#c8ff00", "text_secondary": "#a8d900", "accent": "#c8ff00",
+            "accent_light": "#e0ff66", "input_bg": "#1f1f1f", "select_bg": "#1a2a10",
+            "select_border": "#c8ff00", "type": "dark"
+        },
         "SecureMail Pro": {
             "bg": "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
             "sidebar_bg": "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)",
@@ -2015,6 +2022,65 @@ def get_theme_css(theme_name: str) -> str:
             background-color: {colors['input_bg']} !important;
         }}
         ''' if is_dark else ''])}
+        
+        /* Neon Jelly Theme Special Effects */
+        {''.join([f'''
+        /* Glowing progress bars */
+        .stProgress > div > div > div {{
+            background: linear-gradient(90deg, #4a4a4a 0%, #6b6b6b 40%, #c8ff00 70%, #e0ff66 100%) !important;
+            box-shadow: 0 0 20px rgba(200, 255, 0, 0.6), 0 0 40px rgba(200, 255, 0, 0.3) !important;
+            border-radius: 20px !important;
+        }}
+        .stProgress > div > div {{
+            background: #3d3d3d !important;
+            border-radius: 20px !important;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+        }}
+        
+        /* Glowing buttons */
+        .stButton > button {{
+            background: linear-gradient(135deg, #1a2a10 0%, #2d4a15 50%, #c8ff00 100%) !important;
+            border: 1px solid #c8ff00 !important;
+            box-shadow: 0 0 15px rgba(200, 255, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s ease !important;
+        }}
+        .stButton > button:hover {{
+            box-shadow: 0 0 25px rgba(200, 255, 0, 0.7), 0 0 50px rgba(200, 255, 0, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }}
+        
+        /* Glowing cards/expanders */
+        [data-testid="stExpander"] {{
+            border: 1px solid rgba(200, 255, 0, 0.3) !important;
+            box-shadow: 0 0 10px rgba(200, 255, 0, 0.1) !important;
+        }}
+        [data-testid="stExpander"]:hover {{
+            box-shadow: 0 0 20px rgba(200, 255, 0, 0.2) !important;
+        }}
+        
+        /* Glowing inputs */
+        .stTextInput input:focus, .stTextArea textarea:focus {{
+            border-color: #c8ff00 !important;
+            box-shadow: 0 0 10px rgba(200, 255, 0, 0.3) !important;
+        }}
+        
+        /* Glowing tabs */
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {{
+            background: linear-gradient(135deg, #1a2a10, #2d4a15) !important;
+            border-bottom: 3px solid #c8ff00 !important;
+            box-shadow: 0 4px 15px rgba(200, 255, 0, 0.3) !important;
+        }}
+        
+        /* Jelly slider animation */
+        @keyframes jellyGlow {{
+            0%, 100% {{ box-shadow: 0 0 15px rgba(200, 255, 0, 0.4); }}
+            50% {{ box-shadow: 0 0 30px rgba(200, 255, 0, 0.7); }}
+        }}
+        .stSlider > div > div > div > div {{
+            background: linear-gradient(90deg, #4a4a4a, #c8ff00) !important;
+            animation: jellyGlow 2s ease-in-out infinite !important;
+        }}
+        ''' if theme_name == 'Neon Jelly' else ''])}
     """
     
     return theme_css
