@@ -3,18 +3,25 @@
 
 import json
 import os
+from pathlib import Path
 from azure.communication.sms import SmsClient
+
+# Default config path - use main app's config folder
+DEFAULT_CONFIG = Path(__file__).parent.parent / "config" / "azure_sms.json"
 
 class AzureSMSSender:
     """Send SMS via Azure Communication Services"""
     
-    def __init__(self, config_file="azure_email_config.json"):
+    def __init__(self, config_file=None):
         """Initialize with Azure config"""
+        if config_file is None:
+            config_file = DEFAULT_CONFIG
+        
         if os.path.exists(config_file):
             with open(config_file, 'r') as f:
                 config = json.load(f)
-                self.connection_string = config['connection_string']
-                self.from_number = config.get('sms_phone_number')
+                self.connection_string = config.get('connection_string')
+                self.from_number = config.get('phone_number') or config.get('sms_phone_number')
         else:
             raise FileNotFoundError(f"Configuration file {config_file} not found")
         

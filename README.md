@@ -1,6 +1,6 @@
-# � Dragon Mailer v2.0
+# 🐉 Dragon Mailer v2.0
 
-A powerful Python application to send bulk emails and SMS messages. Includes a beautiful **Streamlit web UI** with themes, multi-user support, and scheduling.
+A powerful Python application to send bulk emails and SMS messages with a beautiful **Streamlit web UI**.
 
 ## ✨ Features
 
@@ -9,16 +9,13 @@ A powerful Python application to send bulk emails and SMS messages. Includes a b
 - ☁️ **Azure SMS Integration** - Professional SMS via Azure Communication Services
 - 👥 **Multi-User System** - Create accounts for different users
 - 🔐 **Password Protection** - Secure your app with login
-- 🎨 **11 Beautiful Themes** - Dark and light modes
+- 🎨 **20+ Beautiful Themes** - Glass effects with rotating backgrounds
 - ⏰ **Scheduled Sending** - Queue messages for later
 - 📊 **Message History** - Track all sent messages
-- 📈 **Email Tracking** - Track email opens
-- 🌐 **Network Access** - Use from any PC on your network
 
 ## 🚀 Quick Start (Windows)
 
-### After Cloning:
-
+### Option 1: Double-Click Setup
 ```bash
 # Clone the repository
 git clone https://github.com/DragonFly504/DragonMailer2.0.git
@@ -28,110 +25,77 @@ cd DragonMailer2.0
 SETUP.bat
 ```
 
-**That's it!** Double-click the "Dragon Mailer" shortcut on your desktop.
-
-### Manual Start:
-
+### Option 2: Manual Start
 ```bash
-# Start the app
-Start_Dragon_Mailer.bat
+# Install dependencies
+pip install -r requirements.txt
 
-# Or for network access (other PCs):
+# Run the app
+python -m streamlit run app.py --server.port 8503
+```
+
+### Option 3: Network Mode (Access from other PCs)
+```bash
 Start_Network_Mode.bat
 ```
 
-## 🔐 Login System
+## 🔐 Default Login
 
-The app supports:
-- **Single Password Mode** - One password for everyone
-- **Multi-User Mode** - Separate accounts for each user
+- **Username:** `admin`
+- **Password:** `WelcomePassword1@`
 
-Each user gets their own isolated workspace. Enable Multi-User mode in Settings after first launch.
+*Change the password after first login!*
 
-## 📁 Files Included
+## 📁 Project Structure
 
-| File | Purpose |
-|------|---------|
-| `SETUP.bat` | First-time setup (run after clone) |
-| `Start_Dragon_Mailer.bat` | Start app (local only) |
-| `Start_Network_Mode.bat` | Start app (network access) |
-| `Allow_Firewall.bat` | Allow through Windows Firewall |
-| `app.py` | Main application |
-| `cli.py` | Command-line interface |
-
-## 🎨 Available Themes
-
-- 🐉 Dragon Dark / Light
-- 🔒 SecureMail Pro
-- 🌙 Midnight Blue
-- 🌊 Ocean Breeze
-- 🌲 Forest Green
-- 🌅 Sunset Orange
-- 💜 Purple Haze
-- 🌸 Rose Gold
-- 💚 Cyber Neon
-- ❄️ Arctic Ice
-
-## 💻 Command Line Interface
-
-```bash
-# Send email
-python cli.py email -p gmail -e you@gmail.com -t recipient@example.com -s "Subject" -m "Message"
-
-# Send SMS
-python cli.py sms -p gmail -e you@gmail.com -n 5551234567 -c att -m "Hello!"
-
-# Interactive mode
-python cli.py interactive
-
-# List available carriers
-python cli.py carriers
-
-# List SMTP presets
-python cli.py presets
+```
+DragonMailer2.0/
+├── app.py              # Main Streamlit application
+├── requirements.txt    # Python dependencies
+├── SETUP.bat          # Windows setup script
+├── Start_Dragon_Mailer.bat  # Quick start
+├── config/            # User settings & configs
+├── docs/              # Documentation
+├── azure/             # Azure SMS integration
+├── utils/             # Utility scripts
+└── Scripts/           # PowerShell helper scripts
 ```
 
-## SMS Carriers Supported
+## 🎨 Glass Theme UI
 
-| Carrier | Gateway |
-|---------|---------|
-| AT&T | txt.att.net |
-| T-Mobile | tmomail.net |
-| Verizon | vtext.com |
-| Sprint | messaging.sprintpcs.com |
-| US Cellular | email.uscc.net |
-| Metro PCS | mymetropcs.com |
-| Boost Mobile | sms.myboostmobile.com |
-| Cricket | sms.cricketwireless.net |
-| Virgin Mobile | vmobl.com |
-| Google Fi | msg.fi.google.com |
-| Mint Mobile | tmomail.net |
+The login page features:
+- Beautiful gradient backgrounds (20 rotating themes)
+- Glass morphism effects with blur
+- Dragon logo with fire animation
+- Responsive design optimized for all screen sizes
 
-## SMTP Presets
+## ⚙️ Configuration
 
-- **Gmail** - smtp.gmail.com:587
-- **Outlook/Hotmail** - smtp.office365.com:587
-- **Yahoo** - smtp.mail.yahoo.com:587
-- **iCloud** - smtp.mail.me.com:587
-- **Zoho** - smtp.zoho.com:587
-- **SendGrid** - smtp.sendgrid.net:587
-- **Mailgun** - smtp.mailgun.org:587
-- **Amazon SES** - email-smtp.us-east-1.amazonaws.com:587
+Settings are stored in `config/settings.json`:
+- SMTP server configuration
+- Theme preferences
+- Multi-user toggle
+- Email tracking options
 
-## ⚠️ Important Notes
+## 📚 Documentation
 
-### Gmail App Password
-For Gmail, you must use an **App Password** instead of your regular password:
-1. Enable 2-Factor Authentication on your Google account
-2. Go to [App Passwords](https://myaccount.google.com/apppasswords)
-3. Generate a new app password for "Mail"
-4. Use this 16-character password in the app
+See the `docs/` folder for:
+- [User Guide](docs/USER_GUIDE.md)
+- [Azure SMS Setup](docs/AZURE_SMS_SETUP.md)
+- [VPS Deployment](docs/VPS_DEPLOYMENT.md)
+- [Troubleshooting](docs/troubleshoot.md)
 
-### Security
-- Never commit your credentials to git
-- The `smtp_configs.json` file is gitignored
-- Use environment variables for production deployments
+## 🐳 Docker Support
 
-## License
+```bash
+docker build -t dragon-mailer .
+docker run -p 8503:8503 dragon-mailer
+```
 
-MIT License
+## 📜 License
+
+MIT License - Use freely for personal or commercial projects.
+
+---
+
+Made with ❤️ by DragonFly504

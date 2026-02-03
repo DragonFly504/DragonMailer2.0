@@ -18,14 +18,13 @@ import io
 import uuid
 import base64
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from email.utils import formatdate, make_msgid
 from pathlib import Path
-from typing import Optional
 import threading
 import time
 import hashlib
@@ -39,6 +38,13 @@ try:
     AZURE_SMS_AVAILABLE = True
 except ImportError:
     AZURE_SMS_AVAILABLE = False
+
+# Jelly Components for enhanced Neon Jelly theme
+try:
+    from jelly_components import jelly_progress, jelly_slider_display, jelly_loading, jelly_metric
+    JELLY_AVAILABLE = True
+except ImportError:
+    JELLY_AVAILABLE = False
 
 # Config file paths
 CONFIG_DIR = Path(__file__).parent / "config"
@@ -624,65 +630,715 @@ def check_login() -> bool:
 
 
 def show_login_page():
-    """Display login page and handle authentication."""
+    """Display centered glass login card with feature tiles."""
     settings = load_settings()
     multi_user = settings.get("multi_user_enabled", False)
+    current_theme = settings.get("theme", "Dragon Dark")
     
-    st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
-            <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, rgba(234, 88, 12, 0.2), rgba(251, 191, 36, 0.15)); border-radius: 20px; border: 1px solid rgba(249, 115, 22, 0.4);">
-                <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">🐉</h1>
-                <h2 style="color: #fbbf24 !important; margin-bottom: 2rem;">Dragon Mailer Login</h2>
-            </div>
-        </div>
+    # Get theme accent color
+    theme_accents = {
+        "Dragon Dark": "#ff6b35", "Classic Light": "#2563eb", "Warm Ember": "#f97316",
+        "Midnight Blue": "#3b82f6", "Ocean Breeze": "#0ea5e9", "Forest Green": "#22c55e",
+        "Sunset Orange": "#f97316", "Purple Haze": "#a855f7", "Rose Gold": "#ec4899",
+        "Cyber Neon": "#00ff88", "Arctic Ice": "#06b6d4", "Neon Jelly": "#c8ff00",
+    }
+    accent = theme_accents.get(current_theme, "#ff6b35")
+    
+    # Beautiful background gradients that work well with glass effect
+    # Each entry: (background_gradient, orb1_color, orb2_color, orb3_color)
+    LOGIN_BACKGROUNDS = [
+        # 1. Deep Ocean Night
+        ("linear-gradient(135deg, #0d1b2a 0%, #1b263b 30%, #415a77 60%, #778da9 100%)", 
+         "#3b82f6", "#667eea", "#11998e"),
+        # 2. Purple Nebula
+        ("linear-gradient(135deg, #1a0533 0%, #2d1b4e 25%, #4a2c7a 50%, #7c3aed 80%, #a855f7 100%)",
+         "#a855f7", "#7c3aed", "#c084fc"),
+        # 3. Aurora Borealis
+        ("linear-gradient(135deg, #0f0c29 0%, #302b63 40%, #24243e 70%, #1a1a2e 100%)",
+         "#00d4ff", "#7c3aed", "#00ff88"),
+        # 4. Sunset Blaze
+        ("linear-gradient(135deg, #1f1c2c 0%, #3a1c71 25%, #d76d77 60%, #ffaf7b 100%)",
+         "#ff6b35", "#d76d77", "#ffaf7b"),
+        # 5. Midnight Rose
+        ("linear-gradient(135deg, #16141c 0%, #2c1e3d 30%, #4a2040 60%, #7c2d4d 100%)",
+         "#ec4899", "#be185d", "#f472b6"),
+        # 6. Deep Space
+        ("linear-gradient(135deg, #000428 0%, #0a1628 30%, #1a2a4a 60%, #004e92 100%)",
+         "#0ea5e9", "#3b82f6", "#06b6d4"),
+        # 7. Emerald Forest
+        ("linear-gradient(135deg, #0a1a10 0%, #132a1a 30%, #1e4d2b 60%, #2d6a4f 100%)",
+         "#22c55e", "#059669", "#10b981"),
+        # 8. Royal Purple
+        ("linear-gradient(135deg, #150030 0%, #2a0a4a 30%, #4c1d6e 60%, #6b2d8a 100%)",
+         "#9333ea", "#7c3aed", "#a855f7"),
+        # 9. Warm Amber
+        ("linear-gradient(135deg, #1a1005 0%, #2d1a0a 30%, #4a2810 60%, #6b3810 100%)",
+         "#f97316", "#ea580c", "#fbbf24"),
+        # 10. Cyber Pink
+        ("linear-gradient(135deg, #1a0a1a 0%, #2d1030 30%, #4a1a4a 60%, #6b2060 100%)",
+         "#ec4899", "#f472b6", "#db2777"),
+        # 11. Arctic Night
+        ("linear-gradient(135deg, #0a1520 0%, #0f2030 30%, #1a3a50 60%, #2a5a70 100%)",
+         "#06b6d4", "#0ea5e9", "#22d3ee"),
+        # 12. Volcano
+        ("linear-gradient(135deg, #1a0505 0%, #2d0a0a 30%, #4a1010 50%, #6b1a1a 70%, #8b2020 100%)",
+         "#ef4444", "#dc2626", "#f97316"),
+        # 13. Mystic Violet
+        ("linear-gradient(135deg, #0f0a20 0%, #1a1040 30%, #2a1a60 50%, #3a2480 70%, #4a2ea0 100%)",
+         "#8b5cf6", "#a78bfa", "#7c3aed"),
+        # 14. Teal Dreams
+        ("linear-gradient(135deg, #021010 0%, #052020 30%, #0a3a3a 50%, #0f5050 70%, #147070 100%)",
+         "#14b8a6", "#2dd4bf", "#0d9488"),
+        # 15. Golden Hour
+        ("linear-gradient(135deg, #1a1000 0%, #2d1a00 30%, #4a2a00 50%, #6b4000 70%, #8b5500 100%)",
+         "#fbbf24", "#f59e0b", "#eab308"),
+        # 16. Neon Night
+        ("linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)",
+         "#00ff88", "#00d4ff", "#ff006e"),
+        # 17. Berry Bliss
+        ("linear-gradient(135deg, #1a0520 0%, #2d0a3a 30%, #4a1050 60%, #6b1a70 100%)",
+         "#e879f9", "#d946ef", "#a855f7"),
+        # 18. Ocean Abyss
+        ("linear-gradient(135deg, #000510 0%, #001020 30%, #002040 50%, #003060 70%, #004080 100%)",
+         "#0284c7", "#0369a1", "#0ea5e9"),
+        # 19. Crimson Dusk
+        ("linear-gradient(135deg, #150505 0%, #2a0a0a 30%, #400f0f 50%, #5a1515 70%, #701a1a 100%)",
+         "#dc2626", "#b91c1c", "#f87171"),
+        # 20. Jade Garden
+        ("linear-gradient(135deg, #001510 0%, #002a1a 30%, #004030 50%, #005a40 70%, #007a50 100%)",
+         "#10b981", "#059669", "#34d399"),
+    ]
+    
+    # Randomly select a background (changes each page load)
+    bg_choice = random.choice(LOGIN_BACKGROUNDS)
+    bg_gradient = bg_choice[0]
+    orb1_color = bg_choice[1]
+    orb2_color = bg_choice[2]
+    orb3_color = bg_choice[3]
+    
+    # Centered Glass Login CSS
+    st.markdown(f"""
+        <style>
+            /* ========== FULLSCREEN NO SCROLL ========== */
+            html, body {{
+                overflow: hidden !important;
+                height: 100vh !important;
+            }}
+            .stApp {{
+                overflow: hidden !important;
+                background: {bg_gradient} !important;
+                min-height: 100vh !important;
+            }}
+            header[data-testid="stHeader"],
+            #MainMenu, footer, .stDeployButton,
+            [data-testid="stSidebar"] {{
+                display: none !important;
+            }}
+            .block-container {{
+                padding: 0 !important;
+                max-width: 100% !important;
+            }}
+            
+            /* Floating Orbs - Static, optimized for performance */
+            .orb {{
+                position: fixed;
+                border-radius: 50%;
+                filter: blur(40px);
+                opacity: 0.3;
+                z-index: 0;
+                pointer-events: none;
+                will-change: auto;
+            }}
+            .orb-1 {{
+                width: 250px; height: 250px;
+                background: {orb1_color};
+                bottom: -80px; left: -80px;
+            }}
+            .orb-2 {{
+                width: 220px; height: 220px;
+                background: {orb2_color};
+                top: -60px; right: -60px;
+            }}
+            .orb-3 {{
+                width: 180px; height: 180px;
+                background: {orb3_color};
+                top: 40%; left: 55%;
+                opacity: 0.2;
+            }}
+            
+            /* Sparkles removed for performance */
+            
+            /* ========== CENTER EVERYTHING ========== */
+            [data-testid="stMainBlockContainer"] {{
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                min-height: 100vh !important;
+                max-height: 100vh !important;
+                padding: 0.5rem !important;
+                position: relative;
+                z-index: 10;
+                overflow: hidden !important;
+            }}
+            [data-testid="stVerticalBlock"] {{
+                width: 100% !important;
+                max-width: 320px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                position: relative !important;
+                z-index: 10 !important;
+            }}
+            
+            /* Keep form elements within glass bounds */
+            .stTextInput, .stCheckbox, .stButton {{
+                width: 100% !important;
+                max-width: 300px !important;
+            }}
+            
+            /* Login header stays inside glass */
+            .login-header {{
+                text-align: center;
+                margin-bottom: 0.8rem;
+                padding: 0.8rem 1rem;
+                background: linear-gradient(145deg, 
+                    rgba(255, 255, 255, 0.12) 0%, 
+                    rgba(255, 255, 255, 0.05) 50%,
+                    rgba(255, 255, 255, 0.08) 100%);
+                backdrop-filter: blur(16px) saturate(180%);
+                -webkit-backdrop-filter: blur(16px) saturate(180%);
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-top: 1px solid rgba(255, 255, 255, 0.4);
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
+                width: 100%;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow:
+                    0 4px 20px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                position: relative;
+                overflow: hidden;
+            }}
+            
+            /* Static glass shine on header */
+            .login-header::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+                pointer-events: none;
+            }}
+            
+            /* ========== MAIN GLASS LOGIN CARD ========== */
+            /* Style the st.container(border=True) as glass */
+            [data-testid="stVerticalBlockBorderWrapper"] {{
+                background: rgba(180, 180, 180, 0.12) !important;
+                backdrop-filter: blur(24px) saturate(200%) !important;
+                -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+                border-top-color: rgba(255, 255, 255, 0.6) !important;
+                border-left-color: rgba(255, 255, 255, 0.5) !important;
+                border-radius: 24px !important;
+                padding: 1.2rem !important;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.5),
+                    0 20px 60px rgba(0, 0, 0, 0.4),
+                    0 40px 100px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+                max-width: 360px !important;
+                margin: 0 auto !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }}
+            
+            /* Inner container of bordered wrapper */
+            [data-testid="stVerticalBlockBorderWrapper"] > div {{
+                background: transparent !important;
+            }}
+            
+            /* Static glass shine */
+            [data-testid="stVerticalBlockBorderWrapper"]::before {{
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.12) 0%,
+                    transparent 40%
+                ) !important;
+                pointer-events: none !important;
+                z-index: 1 !important;
+            }}
+            
+            /* Glass reflection at top */
+            [data-testid="stVerticalBlockBorderWrapper"]::after {{
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 10% !important;
+                right: 10% !important;
+                height: 1px !important;
+                background: linear-gradient(90deg, 
+                    transparent, 
+                    rgba(255, 255, 255, 0.6), 
+                    transparent
+                ) !important;
+                pointer-events: none !important;
+            }}
+            
+            /* ========== GLASS INNER ELEMENTS ========== */
+            /* Glass effect for form field containers */
+            [data-testid="stVerticalBlockBorderWrapper"] .stTextInput > div {{
+                background: rgba(255, 255, 255, 0.15) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+                border-radius: 12px !important;
+                border: 1px solid rgba(255, 255, 255, 0.25) !important;
+                padding: 2px !important;
+            }}
+            
+            /* Remember me checkbox glass effect */
+            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox {{
+                background: rgba(255, 255, 255, 0.08) !important;
+                backdrop-filter: blur(6px) !important;
+                -webkit-backdrop-filter: blur(6px) !important;
+                border-radius: 8px !important;
+                padding: 0.4rem 0.8rem !important;
+                margin: 0.4rem 0 !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                transition: all 0.3s ease !important;
+            }}
+            
+            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox:hover {{
+                background: rgba(255, 255, 255, 0.15) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+            }}
+            
+            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox label,
+            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox label p {{
+                color: #ffffff !important;
+                font-size: 0.8rem !important;
+                font-weight: 500 !important;
+            }}
+            
+            /* Dragon Logo Container */
+            .dragon-logo-wrap {{
+                position: relative;
+                width: 70px;
+                height: 70px;
+                margin-bottom: 0.4rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }}
+            
+            .dragon-logo-ring {{
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                animation: ringRotate 15s linear infinite;
+            }}
+            
+            .dragon-logo-ring::before {{
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 8px;
+                height: 8px;
+                background: {accent};
+                border-radius: 50%;
+                box-shadow: 0 0 10px {accent}, 0 0 20px {accent};
+            }}
+            
+            @keyframes ringRotate {{
+                from {{ transform: rotate(0deg); }}
+                to {{ transform: rotate(360deg); }}
+            }}
+            
+            /* Dragon icon - stable in center */
+            .dragon-icon {{
+                font-size: 2.4rem;
+                filter: drop-shadow(0 0 10px {accent}) drop-shadow(0 0 20px rgba(255,100,0,0.5));
+                display: block;
+                position: relative;
+                z-index: 2;
+            }}
+            
+            /* Fire glow effect behind dragon */
+            .dragon-fire-glow {{
+                position: absolute;
+                width: 50px;
+                height: 50px;
+                background: radial-gradient(circle, rgba(255,100,0,0.4) 0%, rgba(255,50,0,0.2) 40%, transparent 70%);
+                border-radius: 50%;
+                animation: fireGlow 4s ease-in-out infinite;
+                z-index: 1;
+            }}
+            
+            @keyframes fireGlow {{
+                0%, 100% {{ transform: scale(1); opacity: 0.6; }}
+                50% {{ transform: scale(1.15); opacity: 0.9; }}
+            }}
+            
+            /* Title styling */
+            .title-container {{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+            }}
+            
+            .login-title {{
+                font-size: 1.1rem;
+                font-weight: 800;
+                font-family: 'Segoe UI', 'Inter', sans-serif;
+                letter-spacing: 4px;
+                text-transform: uppercase;
+                color: #ffffff;
+                margin: 0;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                position: relative;
+            }}
+            
+            .login-title-main {{
+                font-size: 1.6rem;
+                font-weight: 900;
+                font-family: 'Segoe UI', 'Inter', sans-serif;
+                letter-spacing: 6px;
+                text-transform: uppercase;
+                background: linear-gradient(180deg, 
+                    #ffffff 0%, 
+                    rgba(255,255,255,0.9) 40%,
+                    {accent} 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin: 0;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }}
+            
+            .title-divider {{
+                width: 80%;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), {accent}, rgba(255,255,255,0.5), transparent);
+                margin: 0.3rem 0;
+            }}
+            
+            .login-subtitle {{
+                color: rgba(255,255,255,0.85);
+                font-size: 0.65rem;
+                font-weight: 500;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }}
+            
+            /* Form inputs styling */
+            .stTextInput {{
+                margin-bottom: 0.3rem !important;
+            }}
+            
+            .stTextInput label, .stTextInput label p {{
+                color: #ffffff !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                margin-bottom: 0.2rem !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+            }}
+            
+            /* Input wrapper - remove white background */
+            .stTextInput [data-testid="stTextInputRootElement"],
+            .stTextInput [data-baseweb="input"],
+            .stTextInput [data-baseweb="base-input"] {{
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+            }}
+            
+            .stTextInput > div > div > input {{
+                background: rgba(0, 0, 0, 0.25) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+                border-top-color: rgba(255, 255, 255, 0.5) !important;
+                border-left-color: rgba(255, 255, 255, 0.4) !important;
+                border-radius: 8px !important;
+                color: #ffffff !important;
+                padding: 0.5rem 0.7rem !important;
+                font-size: 0.9rem !important;
+                height: 36px !important;
+                min-height: unset !important;
+                box-shadow: 
+                    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                    inset 0 -1px 1px rgba(0, 0, 0, 0.1) !important;
+            }}
+            .stTextInput > div > div > input:focus {{
+                border-color: rgba(255, 255, 255, 0.6) !important;
+                box-shadow: 
+                    0 0 8px rgba(255, 255, 255, 0.2),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+                background: rgba(0, 0, 0, 0.2) !important;
+            }}
+            .stTextInput > div > div > input::placeholder {{
+                color: rgba(255,255,255,0.5) !important;
+            }}
+            
+            /* Password eye icon button */
+            .stTextInput button {{
+                background: transparent !important;
+                color: rgba(255,255,255,0.7) !important;
+            }}
+            .stTextInput button svg {{
+                fill: rgba(255,255,255,0.7) !important;
+            }}
+            
+            /* Buttons - base glass style */
+            .stButton {{
+                margin-top: 0.1rem !important;
+            }}
+            .stButton > button {{
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border-radius: 8px !important;
+                color: #fff !important;
+                font-weight: 600 !important;
+                padding: 0.4rem 0.8rem !important;
+                font-size: 0.85rem !important;
+                height: 36px !important;
+                transition: all 0.25s !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+            }}
+            
+            /* Sign In button - GREEN glass (first column) */
+            [data-testid="column"]:first-child .stButton > button,
+            [data-testid="stHorizontalBlock"] > div:first-child .stButton > button {{
+                background: rgba(100, 255, 100, 0.25) !important;
+                border: 1.5px solid rgba(100, 255, 100, 0.5) !important;
+                border-top-color: rgba(150, 255, 150, 0.7) !important;
+                border-left-color: rgba(130, 255, 130, 0.6) !important;
+                box-shadow: 
+                    0 4px 15px rgba(100, 255, 100, 0.3),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+            }}
+            [data-testid="column"]:first-child .stButton > button:hover,
+            [data-testid="stHorizontalBlock"] > div:first-child .stButton > button:hover {{
+                transform: translateY(-2px) !important;
+                background: rgba(100, 255, 100, 0.35) !important;
+                box-shadow: 
+                    0 6px 25px rgba(100, 255, 100, 0.4),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            }}
+            
+            /* Help button - RED glass (second column) */
+            [data-testid="column"]:last-child .stButton > button,
+            [data-testid="column"]:nth-child(2) .stButton > button,
+            [data-testid="stHorizontalBlock"] > div:last-child .stButton > button {{
+                background: rgba(255, 80, 80, 0.3) !important;
+                border: 1.5px solid rgba(255, 100, 100, 0.5) !important;
+                border-top-color: rgba(255, 150, 150, 0.6) !important;
+                border-left-color: rgba(255, 130, 130, 0.55) !important;
+                box-shadow: 
+                    0 4px 15px rgba(255, 80, 80, 0.3),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+            }}
+            [data-testid="column"]:last-child .stButton > button:hover,
+            [data-testid="column"]:nth-child(2) .stButton > button:hover,
+            [data-testid="stHorizontalBlock"] > div:last-child .stButton > button:hover {{
+                transform: translateY(-2px) !important;
+                background: rgba(255, 80, 80, 0.4) !important;
+                box-shadow: 
+                    0 6px 20px rgba(255, 80, 80, 0.4),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+            }}
+            
+            [data-testid="column"] {{ background: transparent !important; }}
+            
+            /* Help box - compact */
+            .help-glass {{
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 10px;
+                padding: 0.7rem;
+                margin-top: 0.5rem;
+            }}
+            .help-glass-title {{ color: {accent}; font-weight: 600; margin-bottom: 0.2rem; font-size: 0.75rem; }}
+            .help-glass-text {{ color: rgba(255,255,255,0.6); font-size: 0.7rem; }}
+            .help-glass-text code {{ background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 4px; color: {accent}; font-size: 0.65rem; }}
+            
+            /* Alerts - compact */
+            .stSuccess, .stError, .stWarning, .stInfo {{
+                background: rgba(0,0,0,0.4) !important;
+                backdrop-filter: blur(12px) !important;
+                border-radius: 8px !important;
+                padding: 0.5rem !important;
+                font-size: 0.8rem !important;
+            }}
+            
+            /* ========== FEATURE TILES - COMPACT GLASS ========== */
+            .features-row {{
+                display: flex;
+                justify-content: center;
+                gap: 0.3rem;
+                margin-top: 0.6rem;
+                width: 100%;
+                max-width: 300px;
+            }}
+            .feature-glass {{
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 0.4rem 0.3rem;
+                text-align: center;
+                flex: 1;
+                transition: all 0.3s ease;
+            }}
+            .feature-glass:hover {{
+                background: rgba(255, 255, 255, 0.1);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            }}
+            .feature-icon {{ font-size: 0.9rem; margin-bottom: 0.1rem; }}
+            .feature-text {{ color: rgba(255,255,255,0.5); font-size: 0.55rem; font-weight: 500; }}
+            
+            .version-text {{ color: rgba(255,255,255,0.15); font-size: 0.5rem; text-align: center; margin-top: 0.5rem; }}
+        </style>
+        
+        <!-- Orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     """, unsafe_allow_html=True)
     
-    # Use container instead of nested columns
-    st.markdown("<div style='max-width: 400px; margin: 0 auto;'>", unsafe_allow_html=True)
-    
-    if multi_user:
-        # Multi-user login
-        st.markdown("### 🔐 User Login")
-        username = st.text_input("Username", key="login_username")
-        password = st.text_input("Password", type="password", key="login_password")
+    with st.container(border=True):
+        st.markdown("""
+            <div class="login-header">
+                <div class="dragon-logo-wrap">
+                    <div class="dragon-logo-ring"></div>
+                    <div class="dragon-fire-glow"></div>
+                    <div class="dragon-icon">🐉</div>
+                </div>
+                <div class="title-container">
+                    <span class="login-title">DRAGON</span>
+                    <div class="title-divider"></div>
+                    <span class="login-title-main">MAILER</span>
+                </div>
+                <p class="login-subtitle">Professional Email & SMS Platform</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        if st.button("🔓 Login"):
-            if username and password:
-                success, message, role = authenticate_user(username, password)
-                if success:
+        # Login Form elements
+        if multi_user:
+            username = st.text_input("Username", key="login_username", placeholder="Enter your username")
+            password = st.text_input("Password", type="password", key="login_password", placeholder="Enter your password")
+            
+            # Remember me checkbox
+            remember_me = st.checkbox("🔐 Remember me", key="remember_me", value=st.session_state.get('remember_me', False))
+            
+            col1, col2 = st.columns([1.2, 0.8])
+            with col1:
+                login_clicked = st.button("🔓 Sign In", key="login_btn", use_container_width=True)
+            with col2:
+                help_clicked = st.button("🆘 Help", key="help_btn", use_container_width=True)
+            
+            if login_clicked:
+                if username and password:
+                    success, message, role = authenticate_user(username, password)
+                    if success:
+                        st.session_state.authenticated = True
+                        st.session_state.current_user = username
+                        st.session_state.user_role = role
+                        st.success(f"✅ Welcome back, {username}!")
+                        time.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {message}")
+                else:
+                    st.warning("⚠️ Please enter both username and password")
+            
+            if help_clicked or st.session_state.get('show_help', False):
+                st.session_state.show_help = True
+                st.markdown(f"""
+                    <div class="help-glass">
+                        <div class="help-glass-title">💡 Need Assistance?</div>
+                        <div class="help-glass-text">
+                            <strong>Forgot your password?</strong> Contact support for help.<br>
+                            <strong>New user?</strong> Ask your team lead for access.
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            password = st.text_input("Password", type="password", key="login_password", placeholder="Enter your password")
+            
+            # Remember me checkbox
+            remember_me = st.checkbox("🔐 Remember me", key="remember_me", value=st.session_state.get('remember_me', False))
+            
+            col1, col2 = st.columns([1.2, 0.8])
+            with col1:
+                login_clicked = st.button("🔓 Sign In", key="login_btn", use_container_width=True)
+            with col2:
+                help_clicked = st.button("🆘 Help", key="help_btn", use_container_width=True)
+            
+            if login_clicked:
+                if verify_password(password, settings.get("password_hash", "")):
                     st.session_state.authenticated = True
-                    st.session_state.current_user = username
-                    st.session_state.user_role = role
-                    st.success(f"✅ Welcome, {username}!")
+                    st.session_state.current_user = "admin"
+                    st.session_state.user_role = "admin"
+                    st.success("✅ Login successful!")
                     time.sleep(0.5)
                     st.rerun()
                 else:
-                    st.error(f"❌ {message}")
-            else:
-                st.error("Please enter username and password")
-        
-        if st.button("ℹ️ Help"):
-            st.info("Contact your administrator for login credentials.")
-    else:
-        # Single password mode (legacy)
-        st.markdown("### 🔐 Enter Password")
-        password = st.text_input("Password", type="password", key="login_password")
-        
-        if st.button("🔓 Login"):
-            if verify_password(password, settings.get("password_hash", "")):
-                st.session_state.authenticated = True
-                st.session_state.current_user = "admin"
-                st.session_state.user_role = "admin"
-                st.success("✅ Login successful!")
-                time.sleep(0.5)
-                st.rerun()
-            else:
-                st.error("❌ Invalid password")
-        
-        if st.button("ℹ️ Help"):
-            st.info("Contact your administrator if you forgot your password.")
+                    st.error("❌ Invalid password")
+            
+            if help_clicked:
+                st.markdown("""
+                    <div class="help-glass">
+                        <div class="help-glass-title">💡 Need Assistance?</div>
+                        <div class="help-glass-text">
+                            <strong>Forgot your password?</strong> Contact support for help.<br>
+                            <strong>Having issues?</strong> Try refreshing the page.
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
     
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Feature tiles with separate glass
+    st.markdown(f"""
+        <div class="features-row">
+            <div class="feature-glass">
+                <div class="feature-icon">📧</div>
+                <div class="feature-text">Email</div>
+            </div>
+            <div class="feature-glass">
+                <div class="feature-icon">📱</div>
+                <div class="feature-text">SMS</div>
+            </div>
+            <div class="feature-glass">
+                <div class="feature-icon">☁️</div>
+                <div class="feature-text">Azure</div>
+            </div>
+            <div class="feature-glass">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-text">Secure</div>
+            </div>
+        </div>
+        <div class="version-text">Dragon Mailer v2.0 • © 2026</div>
+    """, unsafe_allow_html=True)
 
 
 # ============== SCHEDULED SENDING FUNCTIONS ==============
@@ -810,6 +1466,78 @@ def execute_scheduled_sms(task: dict) -> str:
     
     success_count = sum(1 for r in results if r.get("success"))
     return f"Sent {success_count}/{len(results)} SMS"
+
+
+# ============== JELLY PROGRESS WRAPPER ==============
+
+def get_theme_accent_color() -> str:
+    """Get the accent color for the current theme."""
+    settings = load_settings()
+    theme_name = settings.get("theme", "Dragon Dark")
+    
+    # Theme accent colors
+    theme_accents = {
+        "Dragon Dark": "#ff6b35",
+        "Classic Light": "#2563eb",
+        "Warm Ember": "#f97316",
+        "Midnight Blue": "#3b82f6",
+        "Ocean Breeze": "#0ea5e9",
+        "Forest Green": "#22c55e",
+        "Sunset Orange": "#f97316",
+        "Purple Haze": "#a855f7",
+        "Rose Gold": "#ec4899",
+        "Cyber Neon": "#00ff88",
+        "Arctic Ice": "#06b6d4",
+        "Neon Jelly": "#c8ff00",
+        "SecureMail Pro": "#fbbf24",
+    }
+    return theme_accents.get(theme_name, "#ff6b35")
+
+
+class JellyProgressBar:
+    """
+    Progress bar wrapper that uses Jelly components with animated effects.
+    Adapts color based on current theme.
+    """
+    def __init__(self, label: str = "Progress", color: str = None):
+        self.label = label
+        self.color = color or get_theme_accent_color()
+        self.value = 0.0
+        self.placeholder = st.empty()
+        self.use_jelly = JELLY_AVAILABLE
+        
+    def progress(self, value: float):
+        """Update progress value (0.0 to 1.0)."""
+        self.value = max(0.0, min(1.0, value))
+        if self.use_jelly:
+            with self.placeholder:
+                jelly_progress(self.value, self.label, self.color)
+        else:
+            self.placeholder.progress(self.value)
+    
+    def empty(self):
+        """Clear the progress bar."""
+        self.placeholder.empty()
+
+
+def show_jelly_metric(label: str, value: str, delta: str = None, color: str = None):
+    """Show a metric using Jelly style with animated effects."""
+    accent_color = color or get_theme_accent_color()
+    
+    if JELLY_AVAILABLE:
+        jelly_metric(label, value, delta, accent_color)
+    else:
+        st.metric(label, value, delta)
+
+
+def show_jelly_loading(text: str = "Loading...", color: str = None):
+    """Show loading animation using Jelly style with animated effects."""
+    accent_color = color or get_theme_accent_color()
+    
+    if JELLY_AVAILABLE:
+        jelly_loading(text, accent_color)
+    else:
+        st.spinner(text)
 
 
 # ============== EMAIL SENDING FUNCTIONS ==============
@@ -955,10 +1683,6 @@ def send_email(
 
 
 # ============== PATTERN GENERATOR ==============
-
-import random
-import string
-import re
 
 def generate_random_string(length: int = 8, chars: str = "aA0") -> str:
     """Generate random string based on character set.
@@ -1546,11 +2270,16 @@ def get_theme_css(theme_name: str) -> str:
             background: {bg_style};
         }}
         
-        /* Sidebar */
+        /* Sidebar - GLASS EFFECT */
         section[data-testid="stSidebar"] {{
-            background: {sidebar_bg};
-            border-right: 1px solid {colors['border']};
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(20px) saturate(150%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15), inset -1px 0 0 rgba(255, 255, 255, 0.05) !important;
+        }}
+        section[data-testid="stSidebar"] > div {{
+            background: transparent !important;
         }}
         section[data-testid="stSidebar"] .stMarkdown, 
         section[data-testid="stSidebar"] h1,
@@ -1591,9 +2320,15 @@ def get_theme_css(theme_name: str) -> str:
         .stTabs [data-baseweb="tab-list"] {{
             background: {colors['sidebar_bg']};
             border: 1px solid {colors['border']};
+            flex-wrap: wrap;
+            gap: 4px;
         }}
         .stTabs [data-baseweb="tab"] {{
             color: {colors['text_secondary']};
+            white-space: nowrap;
+            overflow: visible;
+            font-size: 0.85rem;
+            padding: 8px 12px;
         }}
         .stTabs [data-baseweb="tab"]:hover {{
             background-color: {colors['border']};
@@ -1685,26 +2420,38 @@ def get_theme_css(theme_name: str) -> str:
             color: {colors['accent']} !important;
         }}
         
-        /* Alerts */
+        /* Alerts - GLASS EFFECT */
         .stSuccess {{
-            background: {'#14532d' if is_dark else '#dcfce7'};
+            background: rgba(34, 197, 94, 0.12) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
             color: {'#86efac' if is_dark else '#166534'};
-            border: 1px solid #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.4) !important;
+            border-radius: 12px !important;
         }}
         .stError {{
-            background: {'#7f1d1d' if is_dark else '#fee2e2'};
+            background: rgba(239, 68, 68, 0.12) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
             color: {'#fca5a5' if is_dark else '#991b1b'};
-            border: 1px solid #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            border-radius: 12px !important;
         }}
         .stInfo {{
-            background: {'#1e3a5f' if is_dark else '#e0f2fe'};
+            background: rgba(59, 130, 246, 0.12) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
             color: {'#7dd3fc' if is_dark else '#0369a1'};
-            border: 1px solid {colors['accent']};
+            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+            border-radius: 12px !important;
         }}
         .stWarning {{
-            background: {'#78350f' if is_dark else '#fef3c7'};
+            background: rgba(245, 158, 11, 0.12) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
             color: {'#fde68a' if is_dark else '#92400e'};
-            border: 1px solid #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.4) !important;
+            border-radius: 12px !important;
         }}
         
         /* Checkbox & Radio */
@@ -1990,10 +2737,14 @@ def get_theme_css(theme_name: str) -> str:
             color: {colors['text']} !important;
         }}
         
-        /* Form submit button area */
+        /* Form submit button area - GLASS EFFECT */
         .stForm {{
-            background: {colors['card_bg']} !important;
-            border: 1px solid {colors['border']} !important;
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
         }}
         
         /* Column backgrounds - ensure they don't override */
@@ -2022,6 +2773,134 @@ def get_theme_css(theme_name: str) -> str:
             background-color: {colors['input_bg']} !important;
         }}
         ''' if is_dark else ''])}
+        
+        /* ========== GLASSMORPHISM EFFECTS (ALL THEMES) ========== */
+        
+        /* Glass Cards/Containers */
+        [data-testid="stExpander"],
+        div[data-testid="metric-container"],
+        .stAlert {{
+            background: rgba({colors['accent']}, 0.03) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 4px 20px rgba(0, 0, 0, 0.15) !important;
+        }}
+        
+        /* Glass Inputs */
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div,
+        .stMultiSelect > div > div,
+        .stNumberInput > div > div > input {{
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }}
+        
+        /* Glass Buttons */
+        .stButton > button {{
+            background: rgba(255, 255, 255, 0.04) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid {colors['accent']}50 !important;
+            box-shadow: 0 4px 15px {colors['accent']}30, inset 0 1px 0 rgba(255,255,255,0.08) !important;
+        }}
+        .stButton > button:hover {{
+            background: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 6px 25px {colors['accent']}50, 0 0 30px {colors['accent']}25, inset 0 1px 0 rgba(255,255,255,0.12) !important;
+        }}
+        
+        /* Glass Active Tab */
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {{
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 20px {colors['accent']}35 !important;
+            border-bottom: 3px solid {colors['accent']} !important;
+        }}
+        
+        /* Glass Progress Bar */
+        .stProgress > div > div {{
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(5px) !important;
+        }}
+        .stProgress > div > div > div {{
+            box-shadow: 0 0 15px {colors['accent']}50, 0 0 30px {colors['accent']}25 !important;
+        }}
+        
+        /* Glass Inputs on Focus */
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {{
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-color: {colors['accent']} !important;
+            box-shadow: 0 0 0 3px {colors['accent']}25, 0 0 25px {colors['accent']}20 !important;
+        }}
+        
+        /* Glass Sliders */
+        .stSlider > div > div > div > div {{
+            box-shadow: 0 0 10px {colors['accent']}40 !important;
+        }}
+        .stSlider > div > div > div > div[role="slider"]:hover {{
+            box-shadow: 0 0 20px {colors['accent']}60 !important;
+        }}
+        
+        /* Glass Expanders on Hover */
+        [data-testid="stExpander"]:hover {{
+            background: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 8px 30px {colors['accent']}15, inset 0 1px 0 rgba(255,255,255,0.08) !important;
+            border-color: {colors['accent']}40 !important;
+        }}
+        
+        /* Glass Metrics */
+        div[data-testid="metric-container"]:hover {{
+            background: rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 10px 35px {colors['accent']}20, inset 0 1px 0 rgba(255,255,255,0.1) !important;
+        }}
+        
+        /* Glass File Uploader */
+        .stFileUploader > div {{
+            background: rgba(255, 255, 255, 0.02) !important;
+            backdrop-filter: blur(8px) !important;
+            border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+        }}
+        .stFileUploader > div:hover {{
+            background: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 5px 25px {colors['accent']}20 !important;
+            border-color: {colors['accent']}60 !important;
+        }}
+        
+        /* Glass Select Dropdowns */
+        .stSelectbox > div > div:hover,
+        .stMultiSelect > div > div:hover {{
+            background: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 0 15px {colors['accent']}20 !important;
+        }}
+        
+        /* Glass Alerts */
+        .stSuccess {{
+            background: rgba(34, 197, 94, 0.08) !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25) !important;
+        }}
+        .stError {{
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3) !important;
+        }}
+        .stWarning {{
+            box-shadow: 0 4px 20px rgba(234, 179, 8, 0.3) !important;
+        }}
+        .stInfo {{
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3) !important;
+        }}
+        
+        /* Glowing Sidebar Border */
+        [data-testid="stSidebar"] {{
+            box-shadow: 4px 0 25px {colors['accent']}10 !important;
+        }}
+        
+        /* ========== END THEME-SPECIFIC GLOW ========== */
         
         /* Neon Jelly Theme Special Effects */
         {''.join([f'''
@@ -2191,19 +3070,23 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
 
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 6px;
+            gap: 4px;
             padding: 8px;
             border-radius: 14px;
+            flex-wrap: wrap;
         }
         .stTabs [data-baseweb="tab"] {
-            height: 44px;
+            height: auto;
+            min-height: 40px;
             background-color: transparent;
             border-radius: 10px;
             border: none;
             font-weight: 500;
-            font-size: 0.9rem;
-            padding: 0 18px;
+            font-size: 0.85rem;
+            padding: 8px 12px;
             transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: visible;
         }
 
         /* Input Fields */
@@ -2330,6 +3213,252 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
         .stEmpty {
             color: #d4d4d4 !important;
         }
+        
+        /* ========== UNIVERSAL MOTION & GLOW EFFECTS ========== */
+        
+        /* Keyframe Animations */
+        @keyframes subtleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.05); }
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px currentColor; }
+            50% { box-shadow: 0 0 15px currentColor, 0 0 25px currentColor; }
+        }
+        
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(255, 255, 255, 0.1); }
+            50% { border-color: rgba(255, 255, 255, 0.3); }
+        }
+        
+        @keyframes scalePress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Animated Buttons */
+        .stButton > button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .stButton > button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .stButton > button:hover::before {
+            left: 100%;
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .stButton > button:active {
+            transform: translateY(0) scale(0.98) !important;
+            transition: transform 0.1s !important;
+        }
+        
+        /* Animated Input Fields */
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div,
+        .stMultiSelect > div > div,
+        .stNumberInput > div > div > input {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+        }
+        
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            transform: scale(1.01) !important;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        /* Animated Tabs */
+        .stTabs [data-baseweb="tab"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stTabs [data-baseweb="tab"]::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: currentColor;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover::after {
+            width: 80%;
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            transform: translateY(-2px) !important;
+        }
+        
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            animation: subtleGlow 3s ease-in-out infinite !important;
+        }
+        
+        /* Animated Expanders */
+        [data-testid="stExpander"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        [data-testid="stExpander"]:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .streamlit-expanderHeader {
+            transition: all 0.3s ease !important;
+        }
+        
+        .streamlit-expanderHeader:hover {
+            padding-left: 1.3rem !important;
+        }
+        
+        /* Animated Metrics */
+        div[data-testid="metric-container"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            animation: subtleGlow 4s ease-in-out infinite;
+        }
+        
+        div[data-testid="metric-container"]:hover {
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+        }
+        
+        /* Animated Progress Bar */
+        .stProgress > div > div > div {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            animation: subtleGlow 2s ease-in-out infinite !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stProgress > div > div > div::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+            background-size: 200% 100%;
+        }
+        
+        /* Animated Sliders */
+        .stSlider > div > div > div > div {
+            transition: all 0.3s ease !important;
+        }
+        
+        .stSlider > div > div > div > div[role="slider"] {
+            transition: transform 0.2s ease, box-shadow 0.3s ease !important;
+        }
+        
+        .stSlider > div > div > div > div[role="slider"]:hover {
+            transform: scale(1.2) !important;
+            box-shadow: 0 0 15px currentColor !important;
+        }
+        
+        /* Animated Checkboxes & Radio */
+        .stCheckbox > label,
+        .stRadio > div > label {
+            transition: all 0.2s ease !important;
+        }
+        
+        .stCheckbox > label:hover,
+        .stRadio > div > label:hover {
+            transform: translateX(3px) !important;
+        }
+        
+        /* Animated File Uploader */
+        .stFileUploader > div {
+            transition: all 0.3s ease !important;
+        }
+        
+        .stFileUploader > div:hover {
+            transform: scale(1.01) !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        /* Animated Alerts */
+        .stAlert {
+            animation: floatUp 0.5s ease-out;
+            transition: all 0.3s ease !important;
+        }
+        
+        .stAlert:hover {
+            transform: translateX(5px) !important;
+        }
+        
+        /* Animated Sidebar */
+        [data-testid="stSidebar"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        [data-testid="stSidebar"] > div:first-child {
+            transition: all 0.3s ease !important;
+        }
+        
+        /* Animated Data Tables */
+        .stDataFrame {
+            transition: all 0.3s ease !important;
+        }
+        
+        .stDataFrame:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        /* Animated Select Options */
+        [data-baseweb="select"] [role="option"] {
+            transition: all 0.15s ease !important;
+        }
+        
+        [data-baseweb="select"] [role="option"]:hover {
+            transform: translateX(5px) !important;
+        }
+        
+        /* Smooth Page Transitions */
+        .main .block-container {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ========== END UNIVERSAL MOTION EFFECTS ========== */
     """
     
     theme_css = get_theme_css(theme_name)
@@ -2509,7 +3638,7 @@ def main():
                 st.session_state.user_role = None
                 st.rerun()
         
-        st.caption(f"v1.1.0 | {datetime.now().year}")
+        st.caption(f"v2.0 | {datetime.now().year}")
 
     # Tagline only - logo is in sidebar
     st.markdown("<p class='tagline'>🔥 <strong>Powerful Bulk Messaging Suite</strong> - Breathe fire into your email campaigns.</p>", unsafe_allow_html=True)
@@ -3014,8 +4143,8 @@ def main():
                     if content_type in ["HTML", "Both (HTML with plain text fallback)"]:
                         final_html = html_content if html_content else None
                     
-                    # Progress bar
-                    progress_bar = st.progress(0)
+                    # Progress bar - uses Jelly style for Neon Jelly theme
+                    progress_bar = JellyProgressBar(label="Sending Emails")
                     status_text = st.empty()
                     
                     def update_progress(pct):
@@ -3439,7 +4568,8 @@ def main():
                 elif not sms_message:
                     st.error("Please enter a message.")
                 else:
-                    progress_bar = st.progress(0)
+                    # Progress bar - uses Jelly style for Neon Jelly theme
+                    progress_bar = JellyProgressBar(label="Sending SMS")
                     status_text = st.empty()
                     
                     def update_progress(pct):
@@ -4359,7 +5489,7 @@ def main():
         
         col_a, col_b, col_c = st.columns(3)
         with col_a:
-            st.metric("Version", "1.1.0")
+            st.metric("Version", "2.0")
         with col_b:
             history = load_sent_messages()
             st.metric("Total Messages", len(history))

@@ -12,8 +12,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 
-# Config file path
-CONFIG_FILE = Path(__file__).parent / "smtp_configs.json"
+# Config file path - use the main app's config folder
+CONFIG_DIR = Path(__file__).parent.parent / "config"
+CONFIG_FILE = CONFIG_DIR / "smtp_configs.json"
 
 # SMS Gateway domains for major carriers
 SMS_GATEWAYS = {

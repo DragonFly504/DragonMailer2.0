@@ -8,7 +8,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app files
 COPY app.py .
+COPY jelly_components.py .
 COPY .streamlit .streamlit
+
+# Copy azure module (optional, for Azure SMS)
+COPY azure/ azure/
 
 # Create config directory
 RUN mkdir -p config

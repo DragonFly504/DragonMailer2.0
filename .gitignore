@@ -74,6 +74,12 @@ azure_sms.json
 *_DNS_REPORT.md
 all_sent_numbers.txt
 
+# Excel/Office files
+*.xlsx
+*.xls
+*.docx
+New Microsoft*
+
 # Azure/deployment docs (keep only essential ones)
 AZURE_*.md
 URGENT_FIX.md
