@@ -4102,11 +4102,12 @@ def main():
                         with col_m2:
                             if fail_count > 0:
                                 jelly_metric("Failed", str(fail_count), f"{fail_count}", "#ff4466")
-                    
-                    if success_count > 0:
-                        st.success(f"✅ Successfully sent to {success_count} recipient(s)")
-                    if fail_count > 0:
-                        st.error(f"❌ Failed to send to {fail_count} recipient(s)")
+                    else:
+                        # Fallback to standard messages when jelly components not available
+                        if success_count > 0:
+                            st.success(f"✅ Successfully sent to {success_count} recipient(s)")
+                        if fail_count > 0:
+                            st.error(f"❌ Failed to send to {fail_count} recipient(s)")
                     
                     # Detailed results
                     with st.expander("📋 Detailed Results", expanded=True):
@@ -5151,10 +5152,10 @@ def main():
                     theme_type = "🌙 Dark" if theme_data["type"] == "dark" else "☀️ Light"
                     st.markdown(f"- {theme_data['icon']} **{theme_name}** ({theme_type})")
             
-            # Add jelly slider for theme intensity
+            # Add jelly slider for theme intensity (decorative/preview only)
             st.markdown("#### ✨ Theme Customization")
             theme_intensity = st.slider("Theme Intensity", 0, 100, 50, key="theme_slider", 
-                                       help="Adjust the visual intensity of the theme effects")
+                                       help="Adjust the visual intensity of the theme effects (preview only)")
             if JELLY_AVAILABLE:
                 jelly_slider_display(theme_intensity, 0, 100, "Theme Intensity", "#38bdf8")
             
@@ -5324,10 +5325,10 @@ def main():
         with col2:
             st.markdown("### 📊 Data Management")
             
-            # Add jelly slider for email rate limit
+            # Add jelly slider for email rate limit (decorative/preview only)
             st.markdown("#### 📧 Email Settings")
             rate_limit = st.slider("Email Send Rate (per minute)", 1, 60, 10, key="email_rate_limit",
-                                  help="Control how many emails can be sent per minute")
+                                  help="Control how many emails can be sent per minute (preview only)")
             if JELLY_AVAILABLE:
                 jelly_slider_display(rate_limit, 1, 60, "Send Rate", "#8b5cf6")
             
