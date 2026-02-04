@@ -81,6 +81,7 @@ THEMES = {
     "Cyber Neon": {"icon": "💚", "type": "dark"},
     "Arctic Ice": {"icon": "❄️", "type": "light"},
     "Neon Jelly": {"icon": "🟢", "type": "dark"},
+    "Glass": {"icon": "🔮", "type": "dark"},
 }
 
 # SMS Gateway domains for major carriers
@@ -641,6 +642,7 @@ def show_login_page():
         "Midnight Blue": "#3b82f6", "Ocean Breeze": "#0ea5e9", "Forest Green": "#22c55e",
         "Sunset Orange": "#f97316", "Purple Haze": "#a855f7", "Rose Gold": "#ec4899",
         "Cyber Neon": "#00ff88", "Arctic Ice": "#06b6d4", "Neon Jelly": "#c8ff00",
+        "Glass": "#60a5fa",
     }
     accent = theme_accents.get(current_theme, "#ff6b35")
     
@@ -709,8 +711,11 @@ def show_login_page():
          "#10b981", "#059669", "#34d399"),
     ]
     
-    # Randomly select a background (changes each page load)
-    bg_choice = random.choice(LOGIN_BACKGROUNDS)
+    # Store background choice in session state (only changes on page reload/refresh)
+    if "login_bg_index" not in st.session_state:
+        st.session_state.login_bg_index = random.randint(0, len(LOGIN_BACKGROUNDS) - 1)
+    
+    bg_choice = LOGIN_BACKGROUNDS[st.session_state.login_bg_index]
     bg_gradient = bg_choice[0]
     orb1_color = bg_choice[1]
     orb2_color = bg_choice[2]
@@ -1009,43 +1014,44 @@ def show_login_page():
                 font-family: 'Segoe UI', 'Inter', sans-serif;
                 letter-spacing: 4px;
                 text-transform: uppercase;
-                color: #ffffff;
+                color: #4ade80;
                 margin: 0;
-                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                text-shadow: 0 2px 15px rgba(74, 222, 128, 0.5), 0 0 30px rgba(34, 197, 94, 0.3);
                 position: relative;
             }}
             
             .login-title-main {{
-                font-size: 1.6rem;
+                font-size: 1.8rem;
                 font-weight: 900;
                 font-family: 'Segoe UI', 'Inter', sans-serif;
                 letter-spacing: 6px;
                 text-transform: uppercase;
                 background: linear-gradient(180deg, 
-                    #ffffff 0%, 
-                    rgba(255,255,255,0.9) 40%,
-                    {accent} 100%);
+                    {orb1_color} 0%, 
+                    {orb2_color} 50%,
+                    {orb3_color} 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
                 margin: 0;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
             }}
             
             .title-divider {{
                 width: 80%;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), {accent}, rgba(255,255,255,0.5), transparent);
-                margin: 0.3rem 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, {orb1_color}, {orb2_color}, {orb1_color}, transparent);
+                margin: 0.4rem 0;
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
             }}
             
             .login-subtitle {{
-                color: rgba(255,255,255,0.85);
-                font-size: 0.65rem;
-                font-weight: 500;
+                color: #ffffff;
+                font-size: 0.7rem;
+                font-weight: 600;
                 letter-spacing: 2px;
                 text-transform: uppercase;
-                text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
             }}
             
             /* Form inputs styling */
@@ -1079,6 +1085,7 @@ def show_login_page():
                 border-left-color: rgba(255, 255, 255, 0.4) !important;
                 border-radius: 8px !important;
                 color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
                 padding: 0.5rem 0.7rem !important;
                 font-size: 0.9rem !important;
                 height: 36px !important;
@@ -1095,7 +1102,14 @@ def show_login_page():
                 background: rgba(0, 0, 0, 0.2) !important;
             }}
             .stTextInput > div > div > input::placeholder {{
-                color: rgba(255,255,255,0.5) !important;
+                color: rgba(255,255,255,0.7) !important;
+                -webkit-text-fill-color: rgba(255,255,255,0.7) !important;
+                opacity: 1 !important;
+            }}
+            .stTextInput input::placeholder {{
+                color: rgba(255,255,255,0.7) !important;
+                -webkit-text-fill-color: rgba(255,255,255,0.7) !important;
+                opacity: 1 !important;
             }}
             
             /* Password eye icon button */
@@ -1490,6 +1504,7 @@ def get_theme_accent_color() -> str:
         "Arctic Ice": "#06b6d4",
         "Neon Jelly": "#c8ff00",
         "SecureMail Pro": "#fbbf24",
+        "Glass": "#60a5fa",
     }
     return theme_accents.get(theme_name, "#ff6b35")
 
@@ -2252,6 +2267,15 @@ def get_theme_css(theme_name: str) -> str:
             "select_bg": "#1e293b", "select_border": "#475569", "type": "dark",
             "gradient": True
         },
+        "Glass": {
+            "bg": "linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 50%, #1e293b 70%, #0f172a 100%)",
+            "sidebar_bg": "rgba(15, 23, 42, 0.7)",
+            "card_bg": "rgba(30, 41, 59, 0.4)", "border": "rgba(148, 163, 184, 0.2)",
+            "text": "#e2e8f0", "text_secondary": "#94a3b8", "accent": "#60a5fa",
+            "accent_light": "#3b82f6", "input_bg": "rgba(30, 41, 59, 0.5)",
+            "select_bg": "rgba(59, 130, 246, 0.2)", "select_border": "rgba(96, 165, 250, 0.4)", "type": "dark",
+            "gradient": True, "glass": True
+        },
     }
     
     # Get theme or default to Dragon Dark
@@ -2339,15 +2363,28 @@ def get_theme_css(theme_name: str) -> str:
             color: #FFFFFF !important;
         }}
 
-        /* Inputs */
+        /* Inputs - COMPREHENSIVE TEXT COLOR FIX */
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea {{
             border: 1.5px solid {colors['border']} !important;
             background: {colors['input_bg']} !important;
             color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
         }}
         .stTextInput input, .stTextArea textarea {{
             color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
+        }}
+        .stTextInput [data-baseweb="input"] input,
+        .stTextInput [data-baseweb="base-input"] input {{
+            color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
+        }}
+        .stTextInput input::placeholder,
+        .stTextArea textarea::placeholder {{
+            color: {colors['text_secondary']} !important;
+            -webkit-text-fill-color: {colors['text_secondary']} !important;
+            opacity: 0.7 !important;
         }}
         
         /* Select boxes */
@@ -2406,6 +2443,30 @@ def get_theme_css(theme_name: str) -> str:
         .streamlit-expanderContent label,
         .streamlit-expanderContent div {{
             color: {colors['text']} !important;
+        }}
+        /* EXPANDER INPUT FIX - Ensure inputs inside expanders have proper colors */
+        .streamlit-expanderContent input,
+        .streamlit-expanderContent textarea,
+        [data-testid="stExpander"] input,
+        [data-testid="stExpander"] textarea {{
+            background: {colors['input_bg']} !important;
+            color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
+            border: 1.5px solid {colors['border']} !important;
+        }}
+        [data-testid="stExpander"] .stTextInput input,
+        [data-testid="stExpander"] .stTextArea textarea {{
+            background: {colors['input_bg']} !important;
+            color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
+        }}
+        [data-testid="stExpander"] [data-baseweb="input"],
+        [data-testid="stExpander"] [data-baseweb="base-input"] {{
+            background: {colors['input_bg']} !important;
+        }}
+        [data-testid="stExpander"] [data-baseweb="input"] input {{
+            color: {colors['text']} !important;
+            -webkit-text-fill-color: {colors['text']} !important;
         }}
         
         /* Metrics */
@@ -2960,6 +3021,104 @@ def get_theme_css(theme_name: str) -> str:
             animation: jellyGlow 2s ease-in-out infinite !important;
         }}
         ''' if theme_name == 'Neon Jelly' else ''])}
+        
+        {(''.join(['''
+        /* ========== GLASS THEME SPECIAL EFFECTS ========== */
+        
+        /* Glassmorphism blur effect on all containers */
+        .stApp {
+            backdrop-filter: blur(20px) !important;
+        }
+        
+        /* Glass sidebar */
+        section[data-testid="stSidebar"] {
+            background: rgba(15, 23, 42, 0.7) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-right: 1px solid rgba(148, 163, 184, 0.15) !important;
+        }
+        
+        /* Glass cards */
+        .stMetric, .stExpander, [data-testid="stMetricValue"] {
+            background: rgba(30, 41, 59, 0.4) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            border-radius: 12px !important;
+        }
+        
+        /* Glass buttons */
+        .stButton > button {
+            background: rgba(59, 130, 246, 0.2) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(96, 165, 250, 0.4) !important;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2) !important;
+            transition: all 0.3s ease !important;
+        }
+        .stButton > button:hover {
+            background: rgba(59, 130, 246, 0.4) !important;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        /* Glass inputs - WITH TEXT COLOR FIX */
+        input, textarea, select, [data-baseweb="select"] {
+            background: rgba(30, 41, 59, 0.5) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            color: #e2e8f0 !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(148, 163, 184, 0.7) !important;
+        }
+        .stTextInput input, .stTextArea textarea, .stSelectbox select {
+            color: #e2e8f0 !important;
+        }
+        [data-baseweb="input"] input {
+            color: #e2e8f0 !important;
+        }
+        [data-baseweb="select"] span, [data-baseweb="select"] div {
+            color: #e2e8f0 !important;
+        }
+        }
+        
+        /* Glass tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            background: rgba(30, 41, 59, 0.3) !important;
+            backdrop-filter: blur(10px) !important;
+            border-radius: 10px !important;
+        }
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            background: rgba(59, 130, 246, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+        }
+        
+        /* Floating orbs for ambiance */
+        .stApp::before {
+            content: "";
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            z-index: -1;
+            filter: blur(60px);
+            pointer-events: none;
+        }
+        .stApp::after {
+            content: "";
+            position: fixed;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -80px;
+            z-index: -1;
+            filter: blur(50px);
+            pointer-events: none;
+        }
+        ''' if theme_name == 'Glass' else '']))}
     """
     
     return theme_css
@@ -2992,6 +3151,26 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
         .stTabs, .element-container, .stMarkdown {
             position: relative;
             z-index: 1;
+        }
+        
+        /* ========== MODERN SELECTION HIGHLIGHT ========== */
+        ::selection {
+            background: rgba(249, 115, 22, 0.4);
+            color: #ffffff;
+        }
+        ::-moz-selection {
+            background: rgba(249, 115, 22, 0.4);
+            color: #ffffff;
+        }
+        
+        /* ========== SMOOTH FOCUS RINGS ========== */
+        *:focus {
+            outline: none;
+        }
+        *:focus-visible {
+            outline: 2px solid rgba(249, 115, 22, 0.6);
+            outline-offset: 2px;
+            border-radius: 8px;
         }
         
         /* ========== DRAGON LOGO ========== */
@@ -3056,6 +3235,25 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
         }
         
         /* ========== END DRAGON LOGO ========== */
+        
+        /* ========== HIDE "Press Enter to apply" HINT ========== */
+        .stTextInput [data-testid="InputInstructions"],
+        .stTextInput div[data-testid="InputInstructions"],
+        .stTextArea [data-testid="InputInstructions"],
+        .stTextArea div[data-testid="InputInstructions"],
+        [data-testid="stTextInput"] [data-testid="InputInstructions"],
+        [data-testid="stTextArea"] [data-testid="InputInstructions"],
+        .stTextInput small,
+        .stTextArea small {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+        /* Also hide the instruction text that says "Press Enter to apply" */
+        div[class*="instructions"] {
+            display: none !important;
+        }
 
         /* Headers */
         h1 {
@@ -3103,34 +3301,63 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
             box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3) !important;
         }
         
+        /* UNIVERSAL INPUT TEXT VISIBILITY - Ensures text is always visible */
+        .stTextInput input,
+        .stTextInput > div > div > input,
+        .stTextArea textarea,
+        .stTextArea > div > div > textarea,
+        [data-baseweb="input"] input,
+        [data-baseweb="textarea"] textarea {
+            color: inherit !important;
+            -webkit-text-fill-color: inherit !important;
+        }
+        .stSelectbox [data-baseweb="select"] > div,
+        .stSelectbox [data-baseweb="select"] span,
+        .stMultiSelect [data-baseweb="select"] > div,
+        .stMultiSelect [data-baseweb="select"] span {
+            color: inherit !important;
+        }
+        
         /* Labels */
         .stTextInput label, .stSelectbox label, .stTextArea label {
             font-weight: 600 !important;
             font-size: 0.95rem !important;
             margin-bottom: 0.4rem !important;
+            letter-spacing: 0.01em;
         }
 
-        /* Buttons */
+        /* Buttons - Modern glassmorphism */
         .stButton > button {
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
             font-size: 0.95rem;
-            padding: 0.7rem 1.75rem;
+            padding: 0.75rem 1.75rem;
             border: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: white;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            letter-spacing: 0.02em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
         .stButton > button:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         .stButton > button:active {
             transform: translateY(0) scale(0.98);
         }
         
-        /* Expanders */
+        /* Primary action buttons (Send, Submit) glow */
+        .stButton > button[kind="primary"],
+        .stButton > button:first-of-type {
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        
+        /* Expanders - Modern card style */
         .streamlit-expanderHeader {
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
             padding: 0.85rem 1.1rem;
         }
@@ -3154,54 +3381,119 @@ def inject_custom_css(theme_name: str = "Dragon Dark"):
             font-size: 2rem !important;
         }
         
-        /* Alerts */
+        /* Alerts - Modern styling */
         .stAlert {
-            border-radius: 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         
-        /* Dividers */
+        /* Dividers - Gradient effect */
         hr {
             border: none;
             height: 1px;
             margin: 1.5rem 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         }
         
         /* File Uploader */
         .stFileUploader > div {
-            border-radius: 10px;
-            transition: all 0.2s ease;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         /* Progress Bar */
         .stProgress > div > div {
             border-radius: 999px;
+            overflow: hidden;
         }
         
-        /* Scrollbar */
+        /* Modern Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            border-radius: 4px;
-        }
-        
-        /* Data Tables */
-        .stDataFrame {
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.2));
+        }
         
-        /* Column styling */
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.3) rgba(0,0,0,0.1);
+        }
+        
+        /* Data Tables - Modern card style */
+        .stDataFrame {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Column styling - Better spacing */
         div[data-testid="column"] {
             padding: 0.5rem;
         }
         
+        /* Column gaps on mobile */
+        @media (max-width: 768px) {
+            div[data-testid="column"] {
+                padding: 0.25rem 0;
+            }
+        }
+        
         /* Number/Date/Time inputs */
         .stNumberInput input, .stDateInput input, .stTimeInput input {
-            border-radius: 10px !important;
+            border-radius: 12px !important;
+        }
+        
+        /* Tooltips - Modern style */
+        [data-baseweb="tooltip"] {
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(10px) !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Popover menus */
+        [data-baseweb="popover"] {
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
+            overflow: hidden;
+        }
+        
+        /* Dropdown menus */
+        [data-baseweb="menu"], [data-baseweb="select"] ul {
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.35) !important;
+            padding: 6px !important;
+        }
+        
+        /* Dropdown options */
+        [data-baseweb="menu"] li, [role="option"] {
+            border-radius: 8px !important;
+            margin: 2px 0 !important;
+            transition: all 0.2s ease !important;
+        }
+        [data-baseweb="menu"] li:hover, [role="option"]:hover {
+            background: rgba(249, 115, 22, 0.2) !important;
         }
         
         /* Multiselect */

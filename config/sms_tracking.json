@@ -1,0 +1,12 @@
+{
+  "d555cb02": {
+    "phone": "3213675667",
+    "gateway": "messaging.sprintpcs.com",
+    "message": "Tracked SMS test from Dragon Mailer",
+    "sent_at": "2026-02-03T15:44:03.589256",
+    "status": "sent",
+    "smtp_account": "TTCPWORLDWIDE@onlinefcu.com",
+    "message_id": "<177016224203.19232.1216875522166627050@onlinefcu.com>",
+    "delivery_confirmed": false
+  }
+}
