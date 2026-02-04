@@ -846,8 +846,8 @@ def show_login_page():
             /* Style the st.container(border=True) as glass */
             [data-testid="stVerticalBlockBorderWrapper"] {{
                 background: rgba(180, 180, 180, 0.12) !important;
-                backdrop-filter: blur(24px) saturate(200%) !important;
-                -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+                backdrop-filter: blur(12px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
                 border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
                 border-top-color: rgba(255, 255, 255, 0.6) !important;
                 border-left-color: rgba(255, 255, 255, 0.5) !important;
@@ -856,12 +856,13 @@ def show_login_page():
                 box-shadow: 
                     0 8px 32px rgba(0, 0, 0, 0.5),
                     0 20px 60px rgba(0, 0, 0, 0.4),
-                    0 40px 100px rgba(0, 0, 0, 0.3),
                     inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
                 max-width: 360px !important;
                 margin: 0 auto !important;
                 position: relative !important;
                 overflow: hidden !important;
+                will-change: transform !important;
+                transform: translateZ(0) !important;
             }}
             
             /* Inner container of bordered wrapper */
@@ -906,8 +907,8 @@ def show_login_page():
             /* Glass effect for form field containers */
             [data-testid="stVerticalBlockBorderWrapper"] .stTextInput > div {{
                 background: rgba(255, 255, 255, 0.15) !important;
-                backdrop-filter: blur(8px) !important;
-                -webkit-backdrop-filter: blur(8px) !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
                 border-radius: 12px !important;
                 border: 1px solid rgba(255, 255, 255, 0.25) !important;
                 padding: 2px !important;
@@ -916,8 +917,8 @@ def show_login_page():
             /* Remember me checkbox glass effect */
             [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox {{
                 background: rgba(255, 255, 255, 0.08) !important;
-                backdrop-filter: blur(6px) !important;
-                -webkit-backdrop-filter: blur(6px) !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
                 border-radius: 8px !important;
                 padding: 0.4rem 0.8rem !important;
                 margin: 0.4rem 0 !important;
@@ -954,7 +955,8 @@ def show_login_page():
                 height: 100%;
                 border: 2px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
-                animation: ringRotate 15s linear infinite;
+                animation: ringRotate 30s linear infinite;
+                will-change: transform;
             }}
             
             .dragon-logo-ring::before {{
@@ -991,8 +993,9 @@ def show_login_page():
                 height: 50px;
                 background: radial-gradient(circle, rgba(255,100,0,0.4) 0%, rgba(255,50,0,0.2) 40%, transparent 70%);
                 border-radius: 50%;
-                animation: fireGlow 4s ease-in-out infinite;
+                animation: fireGlow 6s ease-in-out infinite;
                 z-index: 1;
+                will-change: transform, opacity;
             }}
             
             @keyframes fireGlow {{
@@ -1583,14 +1586,28 @@ def send_email(
     results = []
     total = len(recipient_emails)
     
+    def connect_smtp():
+        """Try primary port, fallback to 465 SSL if blocked."""
+        try:
+            if use_ssl:
+                return smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30)
+            else:
+                srv = smtplib.SMTP(smtp_server, smtp_port, timeout=30)
+                if use_tls:
+                    srv.starttls()
+                return srv
+        except (TimeoutError, OSError) as e:
+            # Port 587 blocked? Try 465 with SSL as fallback
+            if smtp_port == 587 and "office365" in smtp_server.lower():
+                try:
+                    return smtplib.SMTP_SSL(smtp_server, 465, timeout=30)
+                except:
+                    pass
+            raise e
+    
     try:
-        # Connect once for all recipients
-        if use_ssl:
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-        else:
-            server = smtplib.SMTP(smtp_server, smtp_port)
-            if use_tls:
-                server.starttls()
+        # Connect once for all recipients (with fallback to port 465)
+        server = connect_smtp()
         
         # Skip authentication for Direct Send (Office 365)
         if not no_auth:
@@ -1801,19 +1818,30 @@ def send_bulk_email_advanced(
                 for r in recipient_emails]
     
     def get_smtp_connection(idx):
-        """Get SMTP connection for the given config index."""
+        """Get SMTP connection for the given config index with port 465 fallback."""
         cfg = smtp_configs[idx % len(smtp_configs)]
         try:
             if cfg.get('use_ssl'):
-                srv = smtplib.SMTP_SSL(cfg['server'], cfg['port'])
+                srv = smtplib.SMTP_SSL(cfg['server'], cfg['port'], timeout=30)
             else:
-                srv = smtplib.SMTP(cfg['server'], cfg['port'])
+                srv = smtplib.SMTP(cfg['server'], cfg['port'], timeout=30)
                 if cfg.get('use_tls', True):
                     srv.starttls()
             
             if not cfg.get('no_auth', False):
                 srv.login(cfg['email'], cfg['password'])
             return srv, cfg
+        except (TimeoutError, OSError) as e:
+            # Port 587 blocked? Try 465 with SSL as fallback
+            if cfg['port'] == 587 and "office365" in cfg['server'].lower():
+                try:
+                    srv = smtplib.SMTP_SSL(cfg['server'], 465, timeout=30)
+                    if not cfg.get('no_auth', False):
+                        srv.login(cfg['email'], cfg['password'])
+                    return srv, cfg
+                except:
+                    pass
+            return None, cfg
         except Exception as e:
             return None, cfg
     
@@ -2045,14 +2073,27 @@ def send_sms_via_gateway(
     results = []
     total = len(phone_entries)
     
+    def connect_smtp_sms():
+        """Try primary port, fallback to 465 SSL if blocked."""
+        try:
+            if use_ssl:
+                return smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30)
+            else:
+                srv = smtplib.SMTP(smtp_server, smtp_port, timeout=30)
+                if use_tls:
+                    srv.starttls()
+                return srv
+        except (TimeoutError, OSError) as e:
+            # Port 587 blocked? Try 465 with SSL as fallback
+            if smtp_port == 587 and "office365" in smtp_server.lower():
+                try:
+                    return smtplib.SMTP_SSL(smtp_server, 465, timeout=30)
+                except:
+                    pass
+            raise e
+    
     try:
-        if use_ssl:
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-        else:
-            server = smtplib.SMTP(smtp_server, smtp_port)
-            if use_tls:
-                server.starttls()
-        
+        server = connect_smtp_sms()
         server.login(sender_email, sender_password)
         
         for idx, (phone_number, carrier) in enumerate(phone_entries):
