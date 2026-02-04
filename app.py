@@ -39,6 +39,13 @@ try:
 except ImportError:
     AZURE_SMS_AVAILABLE = False
 
+# Azure Communication Services for Email (bypasses SMTP port blocks)
+try:
+    from azure.communication.email import EmailClient
+    AZURE_EMAIL_AVAILABLE = True
+except ImportError:
+    AZURE_EMAIL_AVAILABLE = False
+
 # Jelly Components for enhanced Neon Jelly theme
 try:
     from jelly_components import jelly_progress, jelly_slider_display, jelly_loading, jelly_metric
@@ -1559,6 +1566,87 @@ def show_jelly_loading(text: str = "Loading...", color: str = None):
 
 
 # ============== EMAIL SENDING FUNCTIONS ==============
+
+def send_email_azure(
+    recipient_emails: list[str],
+    subject: str,
+    message: str,
+    html_content: str = None,
+    progress_callback = None
+) -> list[dict]:
+    """
+    Send emails via Azure Communication Services (uses HTTPS, never blocked).
+    
+    Returns:
+        list of dicts with results for each recipient
+    """
+    results = []
+    total = len(recipient_emails)
+    
+    # Load Azure Email config
+    config_path = Path(__file__).parent / "azure_email_config.json"
+    if not config_path.exists():
+        return [{"recipient": r, "success": False, "message": "Azure Email not configured", "timestamp": datetime.now().isoformat()}
+                for r in recipient_emails]
+    
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        
+        client = EmailClient.from_connection_string(config['connection_string'])
+        from_email = config['from_email']
+        
+        for idx, recipient in enumerate(recipient_emails):
+            recipient = recipient.strip()
+            if not recipient:
+                continue
+            
+            try:
+                # Build email message
+                email_message = {
+                    "senderAddress": from_email,
+                    "recipients": {
+                        "to": [{"address": recipient}]
+                    },
+                    "content": {
+                        "subject": subject,
+                        "plainText": message,
+                    }
+                }
+                
+                # Add HTML if provided
+                if html_content:
+                    email_message["content"]["html"] = html_content
+                
+                # Send email
+                poller = client.begin_send(email_message)
+                result = poller.result()
+                
+                results.append({
+                    "recipient": recipient,
+                    "success": True,
+                    "message": f"Sent via Azure (ID: {result.get('id', 'N/A')[:8]}...)",
+                    "timestamp": datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                results.append({
+                    "recipient": recipient,
+                    "success": False,
+                    "message": str(e),
+                    "timestamp": datetime.now().isoformat()
+                })
+            
+            # Progress callback
+            if progress_callback:
+                progress_callback(idx + 1, total, recipient)
+        
+        return results
+        
+    except Exception as e:
+        return [{"recipient": r, "success": False, "message": f"Azure Email error: {str(e)}", "timestamp": datetime.now().isoformat()}
+                for r in recipient_emails]
+
 
 def send_email(
     smtp_server: str, 
@@ -3994,23 +4082,53 @@ def main():
     with tabs[0]:
         st.subheader("📤 Send Email")
         
-        # SMTP Selection
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            smtp_configs = load_smtp_configs()
-            smtp_names = list(smtp_configs.keys())
-            selected_smtp = st.selectbox(
-                "Select SMTP Configuration",
-                smtp_names,
-                key="email_smtp_select"
-            )
-        with col2:
+        # Email Send Method Selection
+        email_method = st.radio(
+            "📬 Send Method",
+            ["SMTP (Office 365 / Gmail)", "Azure Email (Never Blocked)"],
+            horizontal=True,
+            key="email_send_method",
+            help="Azure Email uses HTTPS (port 443) - works on any network including mobile hotspots"
+        )
+        
+        # Show Azure info if selected
+        if email_method == "Azure Email (Never Blocked)":
+            st.success("☁️ **Azure Email** - Uses HTTPS (port 443), works on any network!")
+            # Check if Azure is configured
+            azure_config_path = Path(__file__).parent / "azure_email_config.json"
+            if azure_config_path.exists():
+                with open(azure_config_path, 'r') as f:
+                    azure_cfg = json.load(f)
+                st.info(f"📧 Sending from: **{azure_cfg.get('from_email', 'Not configured')}**")
+            else:
+                st.warning("⚠️ Azure Email not configured. Create `azure_email_config.json`")
+        
+        # SMTP Selection (only show for SMTP method)
+        if email_method == "SMTP (Office 365 / Gmail)":
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                smtp_configs = load_smtp_configs()
+                smtp_names = list(smtp_configs.keys())
+                selected_smtp = st.selectbox(
+                    "Select SMTP Configuration",
+                    smtp_names,
+                    key="email_smtp_select"
+                )
+            with col2:
+                if selected_smtp:
+                    config = smtp_configs[selected_smtp]
+                    st.info(f"**{config['server']}:{config['port']}**")
+            
             if selected_smtp:
                 config = smtp_configs[selected_smtp]
-                st.info(f"**{config['server']}:{config['port']}**")
+        else:
+            # Azure method - no SMTP needed
+            selected_smtp = None
+            config = {}
+            sender_email = ""
+            sender_password = ""
         
-        if selected_smtp:
-            config = smtp_configs[selected_smtp]
+        if email_method == "SMTP (Office 365 / Gmail)" and selected_smtp:
             
             # Credentials (show saved or ask for new)
             with st.expander("🔐 Sender Credentials", expanded=True):
@@ -4455,7 +4573,10 @@ def main():
             # Send Button
             st.markdown("---")
             if st.button("📤 Send Emails", key="send_email_btn"):
-                if not sender_email or not sender_password:
+                # Validation - Azure doesn't need SMTP credentials
+                using_azure = email_method == "Azure Email (Never Blocked)"
+                
+                if not using_azure and (not sender_email or not sender_password):
                     st.error("Please enter sender credentials.")
                 elif not all_recipients:
                     st.error("Please add at least one recipient.")
@@ -4489,7 +4610,26 @@ def main():
                     # Check if advanced mode should be used
                     use_advanced = use_bcc_mode or delay_seconds > 0 or rotate_smtp or enable_patterns
                     
-                    if use_advanced:
+                    # Check if Azure Email method selected
+                    if email_method == "Azure Email (Never Blocked)":
+                        if not AZURE_EMAIL_AVAILABLE:
+                            st.error("Azure Email SDK not installed. Run: pip install azure-communication-email")
+                        else:
+                            def azure_progress_callback(current, total, recipient):
+                                pct = current / total
+                                progress_bar.progress(pct)
+                                status_text.text(f"Sending via Azure... {current}/{total} - {recipient}")
+                            
+                            results = send_email_azure(
+                                recipient_emails=all_recipients,
+                                subject=subject,
+                                message=plain_message or "This email requires an HTML-capable email client.",
+                                html_content=final_html,
+                                progress_callback=azure_progress_callback
+                            )
+                    
+                    # SMTP methods
+                    elif use_advanced:
                         # Build SMTP configs for rotation
                         if rotate_smtp and selected_smtps:
                             smtp_config_list = []
