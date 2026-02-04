@@ -638,650 +638,51 @@ def check_login() -> bool:
 
 
 def show_login_page():
-    """Display centered glass login card with feature tiles."""
-    settings = load_settings()
-    multi_user = settings.get("multi_user_enabled", False)
-    current_theme = settings.get("theme", "Dragon Dark")
+    """Display login page with jelly theme"""
+    import streamlit as st
     
-    # Get theme accent color
-    theme_accents = {
-        "Dragon Dark": "#ff6b35", "Classic Light": "#2563eb", "Warm Ember": "#f97316",
-        "Midnight Blue": "#3b82f6", "Ocean Breeze": "#0ea5e9", "Forest Green": "#22c55e",
-        "Sunset Orange": "#f97316", "Purple Haze": "#a855f7", "Rose Gold": "#ec4899",
-        "Cyber Neon": "#00ff88", "Arctic Ice": "#06b6d4", "Neon Jelly": "#c8ff00",
-        "Glass": "#60a5fa",
-    }
-    accent = theme_accents.get(current_theme, "#ff6b35")
+    st.set_page_config(page_title="Dragon Mailer Login", layout="centered")
     
-    # Beautiful background gradients that work well with glass effect
-    # Each entry: (background_gradient, orb1_color, orb2_color, orb3_color)
-    LOGIN_BACKGROUNDS = [
-        # 1. Deep Ocean Night
-        ("linear-gradient(135deg, #0d1b2a 0%, #1b263b 30%, #415a77 60%, #778da9 100%)", 
-         "#3b82f6", "#667eea", "#11998e"),
-        # 2. Purple Nebula
-        ("linear-gradient(135deg, #1a0533 0%, #2d1b4e 25%, #4a2c7a 50%, #7c3aed 80%, #a855f7 100%)",
-         "#a855f7", "#7c3aed", "#c084fc"),
-        # 3. Aurora Borealis
-        ("linear-gradient(135deg, #0f0c29 0%, #302b63 40%, #24243e 70%, #1a1a2e 100%)",
-         "#00d4ff", "#7c3aed", "#00ff88"),
-        # 4. Sunset Blaze
-        ("linear-gradient(135deg, #1f1c2c 0%, #3a1c71 25%, #d76d77 60%, #ffaf7b 100%)",
-         "#ff6b35", "#d76d77", "#ffaf7b"),
-        # 5. Midnight Rose
-        ("linear-gradient(135deg, #16141c 0%, #2c1e3d 30%, #4a2040 60%, #7c2d4d 100%)",
-         "#ec4899", "#be185d", "#f472b6"),
-        # 6. Deep Space
-        ("linear-gradient(135deg, #000428 0%, #0a1628 30%, #1a2a4a 60%, #004e92 100%)",
-         "#0ea5e9", "#3b82f6", "#06b6d4"),
-        # 7. Emerald Forest
-        ("linear-gradient(135deg, #0a1a10 0%, #132a1a 30%, #1e4d2b 60%, #2d6a4f 100%)",
-         "#22c55e", "#059669", "#10b981"),
-        # 8. Royal Purple
-        ("linear-gradient(135deg, #150030 0%, #2a0a4a 30%, #4c1d6e 60%, #6b2d8a 100%)",
-         "#9333ea", "#7c3aed", "#a855f7"),
-        # 9. Warm Amber
-        ("linear-gradient(135deg, #1a1005 0%, #2d1a0a 30%, #4a2810 60%, #6b3810 100%)",
-         "#f97316", "#ea580c", "#fbbf24"),
-        # 10. Cyber Pink
-        ("linear-gradient(135deg, #1a0a1a 0%, #2d1030 30%, #4a1a4a 60%, #6b2060 100%)",
-         "#ec4899", "#f472b6", "#db2777"),
-        # 11. Arctic Night
-        ("linear-gradient(135deg, #0a1520 0%, #0f2030 30%, #1a3a50 60%, #2a5a70 100%)",
-         "#06b6d4", "#0ea5e9", "#22d3ee"),
-        # 12. Volcano
-        ("linear-gradient(135deg, #1a0505 0%, #2d0a0a 30%, #4a1010 50%, #6b1a1a 70%, #8b2020 100%)",
-         "#ef4444", "#dc2626", "#f97316"),
-        # 13. Mystic Violet
-        ("linear-gradient(135deg, #0f0a20 0%, #1a1040 30%, #2a1a60 50%, #3a2480 70%, #4a2ea0 100%)",
-         "#8b5cf6", "#a78bfa", "#7c3aed"),
-        # 14. Teal Dreams
-        ("linear-gradient(135deg, #021010 0%, #052020 30%, #0a3a3a 50%, #0f5050 70%, #147070 100%)",
-         "#14b8a6", "#2dd4bf", "#0d9488"),
-        # 15. Golden Hour
-        ("linear-gradient(135deg, #1a1000 0%, #2d1a00 30%, #4a2a00 50%, #6b4000 70%, #8b5500 100%)",
-         "#fbbf24", "#f59e0b", "#eab308"),
-        # 16. Neon Night
-        ("linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)",
-         "#00ff88", "#00d4ff", "#ff006e"),
-        # 17. Berry Bliss
-        ("linear-gradient(135deg, #1a0520 0%, #2d0a3a 30%, #4a1050 60%, #6b1a70 100%)",
-         "#e879f9", "#d946ef", "#a855f7"),
-        # 18. Ocean Abyss
-        ("linear-gradient(135deg, #000510 0%, #001020 30%, #002040 50%, #003060 70%, #004080 100%)",
-         "#0284c7", "#0369a1", "#0ea5e9"),
-        # 19. Crimson Dusk
-        ("linear-gradient(135deg, #150505 0%, #2a0a0a 30%, #400f0f 50%, #5a1515 70%, #701a1a 100%)",
-         "#dc2626", "#b91c1c", "#f87171"),
-        # 20. Jade Garden
-        ("linear-gradient(135deg, #001510 0%, #002a1a 30%, #004030 50%, #005a40 70%, #007a50 100%)",
-         "#10b981", "#059669", "#34d399"),
-    ]
+    # Inject custom CSS and JS
+    try:
+        with open("style.css") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass  # Fallback to default styling
     
-    # Store background choice in session state (only changes on page reload/refresh)
-    if "login_bg_index" not in st.session_state:
-        st.session_state.login_bg_index = random.randint(0, len(LOGIN_BACKGROUNDS) - 1)
+    try:
+        with open("script.js") as f:
+            st.markdown(f"<script>{f.read()}</script>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass  # Fallback to default behavior
     
-    bg_choice = LOGIN_BACKGROUNDS[st.session_state.login_bg_index]
-    bg_gradient = bg_choice[0]
-    orb1_color = bg_choice[1]
-    orb2_color = bg_choice[2]
-    orb3_color = bg_choice[3]
-    
-    # Centered Glass Login CSS
-    st.markdown(f"""
-        <style>
-            /* ========== FULLSCREEN NO SCROLL ========== */
-            html, body {{
-                overflow: hidden !important;
-                height: 100vh !important;
-            }}
-            .stApp {{
-                overflow: hidden !important;
-                background: {bg_gradient} !important;
-                min-height: 100vh !important;
-            }}
-            header[data-testid="stHeader"],
-            #MainMenu, footer, .stDeployButton,
-            [data-testid="stSidebar"] {{
-                display: none !important;
-            }}
-            .block-container {{
-                padding: 0 !important;
-                max-width: 100% !important;
-            }}
-            
-            /* Floating Orbs - Static, optimized for performance */
-            .orb {{
-                position: fixed;
-                border-radius: 50%;
-                filter: blur(40px);
-                opacity: 0.3;
-                z-index: 0;
-                pointer-events: none;
-                will-change: auto;
-            }}
-            .orb-1 {{
-                width: 250px; height: 250px;
-                background: {orb1_color};
-                bottom: -80px; left: -80px;
-            }}
-            .orb-2 {{
-                width: 220px; height: 220px;
-                background: {orb2_color};
-                top: -60px; right: -60px;
-            }}
-            .orb-3 {{
-                width: 180px; height: 180px;
-                background: {orb3_color};
-                top: 40%; left: 55%;
-                opacity: 0.2;
-            }}
-            
-            /* Sparkles removed for performance */
-            
-            /* ========== CENTER EVERYTHING ========== */
-            [data-testid="stMainBlockContainer"] {{
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-                align-items: center !important;
-                min-height: 100vh !important;
-                max-height: 100vh !important;
-                padding: 0.5rem !important;
-                position: relative;
-                z-index: 10;
-                overflow: hidden !important;
-            }}
-            [data-testid="stVerticalBlock"] {{
-                width: 100% !important;
-                max-width: 320px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                position: relative !important;
-                z-index: 10 !important;
-            }}
-            
-            /* Keep form elements within glass bounds */
-            .stTextInput, .stCheckbox, .stButton {{
-                width: 100% !important;
-                max-width: 300px !important;
-            }}
-            
-            /* Login header stays inside glass */
-            .login-header {{
-                text-align: center;
-                margin-bottom: 0.8rem;
-                padding: 0.8rem 1rem;
-                background: linear-gradient(145deg, 
-                    rgba(255, 255, 255, 0.12) 0%, 
-                    rgba(255, 255, 255, 0.05) 50%,
-                    rgba(255, 255, 255, 0.08) 100%);
-                backdrop-filter: blur(16px) saturate(180%);
-                -webkit-backdrop-filter: blur(16px) saturate(180%);
-                border-radius: 16px;
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                border-top: 1px solid rgba(255, 255, 255, 0.4);
-                border-left: 1px solid rgba(255, 255, 255, 0.3);
-                width: 100%;
-                box-sizing: border-box;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                box-shadow:
-                    0 4px 20px rgba(0, 0, 0, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-                position: relative;
-                overflow: hidden;
-            }}
-            
-            /* Static glass shine on header */
-            .login-header::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
-                pointer-events: none;
-            }}
-            
-            /* ========== MAIN GLASS LOGIN CARD ========== */
-            /* Style the st.container(border=True) as glass */
-            [data-testid="stVerticalBlockBorderWrapper"] {{
-                background: rgba(180, 180, 180, 0.12) !important;
-                backdrop-filter: blur(12px) saturate(150%) !important;
-                -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
-                border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
-                border-top-color: rgba(255, 255, 255, 0.6) !important;
-                border-left-color: rgba(255, 255, 255, 0.5) !important;
-                border-radius: 24px !important;
-                padding: 1.2rem !important;
-                box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.5),
-                    0 20px 60px rgba(0, 0, 0, 0.4),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
-                max-width: 360px !important;
-                margin: 0 auto !important;
-                position: relative !important;
-                overflow: hidden !important;
-                will-change: transform !important;
-                transform: translateZ(0) !important;
-            }}
-            
-            /* Inner container of bordered wrapper */
-            [data-testid="stVerticalBlockBorderWrapper"] > div {{
-                background: transparent !important;
-            }}
-            
-            /* Static glass shine */
-            [data-testid="stVerticalBlockBorderWrapper"]::before {{
-                content: '' !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.12) 0%,
-                    transparent 40%
-                ) !important;
-                pointer-events: none !important;
-                z-index: 1 !important;
-            }}
-            
-            /* Glass reflection at top */
-            [data-testid="stVerticalBlockBorderWrapper"]::after {{
-                content: '' !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 10% !important;
-                right: 10% !important;
-                height: 1px !important;
-                background: linear-gradient(90deg, 
-                    transparent, 
-                    rgba(255, 255, 255, 0.6), 
-                    transparent
-                ) !important;
-                pointer-events: none !important;
-            }}
-            
-            /* ========== GLASS INNER ELEMENTS ========== */
-            /* Glass effect for form field containers */
-            [data-testid="stVerticalBlockBorderWrapper"] .stTextInput > div {{
-                background: rgba(255, 255, 255, 0.15) !important;
-                backdrop-filter: blur(4px) !important;
-                -webkit-backdrop-filter: blur(4px) !important;
-                border-radius: 12px !important;
-                border: 1px solid rgba(255, 255, 255, 0.25) !important;
-                padding: 2px !important;
-            }}
-            
-            /* Remember me checkbox glass effect */
-            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox {{
-                background: rgba(255, 255, 255, 0.08) !important;
-                backdrop-filter: blur(4px) !important;
-                -webkit-backdrop-filter: blur(4px) !important;
-                border-radius: 8px !important;
-                padding: 0.4rem 0.8rem !important;
-                margin: 0.4rem 0 !important;
-                border: 1px solid rgba(255, 255, 255, 0.15) !important;
-                transition: all 0.3s ease !important;
-            }}
-            
-            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox:hover {{
-                background: rgba(255, 255, 255, 0.15) !important;
-                border-color: rgba(255, 255, 255, 0.3) !important;
-            }}
-            
-            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox label,
-            [data-testid="stVerticalBlockBorderWrapper"] .stCheckbox label p {{
-                color: #ffffff !important;
-                font-size: 0.8rem !important;
-                font-weight: 500 !important;
-            }}
-            
-            /* Dragon Logo Container */
-            .dragon-logo-wrap {{
-                position: relative;
-                width: 70px;
-                height: 70px;
-                margin-bottom: 0.4rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }}
-            
-            .dragon-logo-ring {{
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                animation: ringRotate 30s linear infinite;
-                will-change: transform;
-            }}
-            
-            .dragon-logo-ring::before {{
-                content: '';
-                position: absolute;
-                top: -2px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 8px;
-                height: 8px;
-                background: {accent};
-                border-radius: 50%;
-                box-shadow: 0 0 10px {accent}, 0 0 20px {accent};
-            }}
-            
-            @keyframes ringRotate {{
-                from {{ transform: rotate(0deg); }}
-                to {{ transform: rotate(360deg); }}
-            }}
-            
-            /* Dragon icon - stable in center */
-            .dragon-icon {{
-                font-size: 2.4rem;
-                filter: drop-shadow(0 0 10px {accent}) drop-shadow(0 0 20px rgba(255,100,0,0.5));
-                display: block;
-                position: relative;
-                z-index: 2;
-            }}
-            
-            /* Fire glow effect behind dragon */
-            .dragon-fire-glow {{
-                position: absolute;
-                width: 50px;
-                height: 50px;
-                background: radial-gradient(circle, rgba(255,100,0,0.4) 0%, rgba(255,50,0,0.2) 40%, transparent 70%);
-                border-radius: 50%;
-                animation: fireGlow 6s ease-in-out infinite;
-                z-index: 1;
-                will-change: transform, opacity;
-            }}
-            
-            @keyframes fireGlow {{
-                0%, 100% {{ transform: scale(1); opacity: 0.6; }}
-                50% {{ transform: scale(1.15); opacity: 0.9; }}
-            }}
-            
-            /* Title styling */
-            .title-container {{
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0;
-            }}
-            
-            .login-title {{
-                font-size: 1.1rem;
-                font-weight: 800;
-                font-family: 'Segoe UI', 'Inter', sans-serif;
-                letter-spacing: 4px;
-                text-transform: uppercase;
-                color: #4ade80;
-                margin: 0;
-                text-shadow: 0 2px 15px rgba(74, 222, 128, 0.5), 0 0 30px rgba(34, 197, 94, 0.3);
-                position: relative;
-            }}
-            
-            .login-title-main {{
-                font-size: 1.8rem;
-                font-weight: 900;
-                font-family: 'Segoe UI', 'Inter', sans-serif;
-                letter-spacing: 6px;
-                text-transform: uppercase;
-                background: linear-gradient(180deg, 
-                    {orb1_color} 0%, 
-                    {orb2_color} 50%,
-                    {orb3_color} 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin: 0;
-                filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
-            }}
-            
-            .title-divider {{
-                width: 80%;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, {orb1_color}, {orb2_color}, {orb1_color}, transparent);
-                margin: 0.4rem 0;
-                box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            }}
-            
-            .login-subtitle {{
-                color: #ffffff;
-                font-size: 0.7rem;
-                font-weight: 600;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
-            }}
-            
-            /* Form inputs styling */
-            .stTextInput {{
-                margin-bottom: 0.3rem !important;
-            }}
-            
-            .stTextInput label, .stTextInput label p {{
-                color: #ffffff !important;
-                font-size: 0.8rem !important;
-                font-weight: 600 !important;
-                margin-bottom: 0.2rem !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
-            }}
-            
-            /* Input wrapper - remove white background */
-            .stTextInput [data-testid="stTextInputRootElement"],
-            .stTextInput [data-baseweb="input"],
-            .stTextInput [data-baseweb="base-input"] {{
-                background: transparent !important;
-                background-color: transparent !important;
-                border: none !important;
-            }}
-            
-            .stTextInput > div > div > input {{
-                background: rgba(0, 0, 0, 0.25) !important;
-                backdrop-filter: blur(20px) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-                border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-                border-top-color: rgba(255, 255, 255, 0.5) !important;
-                border-left-color: rgba(255, 255, 255, 0.4) !important;
-                border-radius: 8px !important;
-                color: #ffffff !important;
-                -webkit-text-fill-color: #ffffff !important;
-                padding: 0.5rem 0.7rem !important;
-                font-size: 0.9rem !important;
-                height: 36px !important;
-                min-height: unset !important;
-                box-shadow: 
-                    inset 0 1px 1px rgba(255, 255, 255, 0.1),
-                    inset 0 -1px 1px rgba(0, 0, 0, 0.1) !important;
-            }}
-            .stTextInput > div > div > input:focus {{
-                border-color: rgba(255, 255, 255, 0.6) !important;
-                box-shadow: 
-                    0 0 8px rgba(255, 255, 255, 0.2),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
-                background: rgba(0, 0, 0, 0.2) !important;
-            }}
-            .stTextInput > div > div > input::placeholder {{
-                color: rgba(255,255,255,0.7) !important;
-                -webkit-text-fill-color: rgba(255,255,255,0.7) !important;
-                opacity: 1 !important;
-            }}
-            .stTextInput input::placeholder {{
-                color: rgba(255,255,255,0.7) !important;
-                -webkit-text-fill-color: rgba(255,255,255,0.7) !important;
-                opacity: 1 !important;
-            }}
-            
-            /* Password eye icon button */
-            .stTextInput button {{
-                background: transparent !important;
-                color: rgba(255,255,255,0.7) !important;
-            }}
-            .stTextInput button svg {{
-                fill: rgba(255,255,255,0.7) !important;
-            }}
-            
-            /* Buttons - base glass style */
-            .stButton {{
-                margin-top: 0.1rem !important;
-            }}
-            .stButton > button {{
-                backdrop-filter: blur(12px) !important;
-                -webkit-backdrop-filter: blur(12px) !important;
-                border-radius: 8px !important;
-                color: #fff !important;
-                font-weight: 600 !important;
-                padding: 0.4rem 0.8rem !important;
-                font-size: 0.85rem !important;
-                height: 36px !important;
-                transition: all 0.25s !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
-            }}
-            
-            /* Sign In button - GREEN glass (first column) */
-            [data-testid="column"]:first-child .stButton > button,
-            [data-testid="stHorizontalBlock"] > div:first-child .stButton > button {{
-                background: rgba(100, 255, 100, 0.25) !important;
-                border: 1.5px solid rgba(100, 255, 100, 0.5) !important;
-                border-top-color: rgba(150, 255, 150, 0.7) !important;
-                border-left-color: rgba(130, 255, 130, 0.6) !important;
-                box-shadow: 
-                    0 4px 15px rgba(100, 255, 100, 0.3),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-            }}
-            [data-testid="column"]:first-child .stButton > button:hover,
-            [data-testid="stHorizontalBlock"] > div:first-child .stButton > button:hover {{
-                transform: translateY(-2px) !important;
-                background: rgba(100, 255, 100, 0.35) !important;
-                box-shadow: 
-                    0 6px 25px rgba(100, 255, 100, 0.4),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
-            }}
-            
-            /* Help button - RED glass (second column) */
-            [data-testid="column"]:last-child .stButton > button,
-            [data-testid="column"]:nth-child(2) .stButton > button,
-            [data-testid="stHorizontalBlock"] > div:last-child .stButton > button {{
-                background: rgba(255, 80, 80, 0.3) !important;
-                border: 1.5px solid rgba(255, 100, 100, 0.5) !important;
-                border-top-color: rgba(255, 150, 150, 0.6) !important;
-                border-left-color: rgba(255, 130, 130, 0.55) !important;
-                box-shadow: 
-                    0 4px 15px rgba(255, 80, 80, 0.3),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
-            }}
-            [data-testid="column"]:last-child .stButton > button:hover,
-            [data-testid="column"]:nth-child(2) .stButton > button:hover,
-            [data-testid="stHorizontalBlock"] > div:last-child .stButton > button:hover {{
-                transform: translateY(-2px) !important;
-                background: rgba(255, 80, 80, 0.4) !important;
-                box-shadow: 
-                    0 6px 20px rgba(255, 80, 80, 0.4),
-                    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-            }}
-            
-            [data-testid="column"] {{ background: transparent !important; }}
-            
-            /* Help box - compact */
-            .help-glass {{
-                background: rgba(255,255,255,0.06);
-                border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 10px;
-                padding: 0.7rem;
-                margin-top: 0.5rem;
-            }}
-            .help-glass-title {{ color: {accent}; font-weight: 600; margin-bottom: 0.2rem; font-size: 0.75rem; }}
-            .help-glass-text {{ color: rgba(255,255,255,0.6); font-size: 0.7rem; }}
-            .help-glass-text code {{ background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 4px; color: {accent}; font-size: 0.65rem; }}
-            
-            /* Alerts - compact */
-            .stSuccess, .stError, .stWarning, .stInfo {{
-                background: rgba(0,0,0,0.4) !important;
-                backdrop-filter: blur(12px) !important;
-                border-radius: 8px !important;
-                padding: 0.5rem !important;
-                font-size: 0.8rem !important;
-            }}
-            
-            /* ========== FEATURE TILES - COMPACT GLASS ========== */
-            .features-row {{
-                display: flex;
-                justify-content: center;
-                gap: 0.3rem;
-                margin-top: 0.6rem;
-                width: 100%;
-                max-width: 300px;
-            }}
-            .feature-glass {{
-                background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 8px;
-                padding: 0.4rem 0.3rem;
-                text-align: center;
-                flex: 1;
-                transition: all 0.3s ease;
-            }}
-            .feature-glass:hover {{
-                background: rgba(255, 255, 255, 0.1);
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            }}
-            .feature-icon {{ font-size: 0.9rem; margin-bottom: 0.1rem; }}
-            .feature-text {{ color: rgba(255,255,255,0.5); font-size: 0.55rem; font-weight: 500; }}
-            
-            .version-text {{ color: rgba(255,255,255,0.15); font-size: 0.5rem; text-align: center; margin-top: 0.5rem; }}
-        </style>
-        
-        <!-- Orbs -->
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+    # Glass login card
+    st.markdown("""
+    <div class="glass-card">
+        <div class="dm-title">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Dragon_icon.svg/64px-Dragon_icon.svg.png" class="dragon-logo" />
+            <div class="dm-heading">DRAGON MAILER</div>
+            <div class="dm-sub">Professional Email & SMS Platform</div>
+            <div class="dm-sub2">Secure. Fast. Dragon‑powered delivery.</div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
     
-    with st.container(border=True):
-        st.markdown("""
-            <div class="login-header">
-                <div class="dragon-logo-wrap">
-                    <div class="dragon-logo-ring"></div>
-                    <div class="dragon-fire-glow"></div>
-                    <div class="dragon-icon">🐉</div>
-                </div>
-                <div class="title-container">
-                    <span class="login-title">DRAGON</span>
-                    <div class="title-divider"></div>
-                    <span class="login-title-main">MAILER</span>
-                </div>
-                <p class="login-subtitle">Professional Email & SMS Platform</p>
-            </div>
-        """, unsafe_allow_html=True)
+    # Check settings for multi-user mode
+    settings = load_settings()
+    multi_user = settings.get("multi_user_enabled", False)
+    
+    
+    # Login form using Streamlit widgets (inside the styled container)
+    if multi_user:
+        username = st.text_input("Work Email", placeholder="you@company.com", key="login_username")
+        password = st.text_input("Password", type="password", placeholder="••••••••", key="login_password")
         
-        # Login Form elements
-        if multi_user:
-            username = st.text_input("Username", key="login_username", placeholder="Enter your username")
-            password = st.text_input("Password", type="password", key="login_password", placeholder="Enter your password")
-            
-            # Remember me checkbox
-            remember_me = st.checkbox("🔐 Remember me", key="remember_me", value=st.session_state.get('remember_me', False))
-            
-            col1, col2 = st.columns([1.2, 0.8])
-            with col1:
-                login_clicked = st.button("🔓 Sign In", key="login_btn", use_container_width=True)
-            with col2:
-                help_clicked = st.button("🆘 Help", key="help_btn", use_container_width=True)
-            
-            if login_clicked:
+        remember_me = st.checkbox("Remember me", key="remember_me")
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if st.button("Sign in to Dragon Mailer", key="login_btn", use_container_width=True):
                 if username and password:
                     success, message, role = authenticate_user(username, password)
                     if success:
@@ -1295,31 +696,22 @@ def show_login_page():
                         st.error(f"❌ {message}")
                 else:
                     st.warning("⚠️ Please enter both username and password")
-            
-            if help_clicked or st.session_state.get('show_help', False):
-                st.session_state.show_help = True
-                st.markdown(f"""
-                    <div class="help-glass">
-                        <div class="help-glass-title">💡 Need Assistance?</div>
-                        <div class="help-glass-text">
-                            <strong>Forgot your password?</strong> Contact support for help.<br>
-                            <strong>New user?</strong> Ask your team lead for access.
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-        else:
-            password = st.text_input("Password", type="password", key="login_password", placeholder="Enter your password")
-            
-            # Remember me checkbox
-            remember_me = st.checkbox("🔐 Remember me", key="remember_me", value=st.session_state.get('remember_me', False))
-            
-            col1, col2 = st.columns([1.2, 0.8])
-            with col1:
-                login_clicked = st.button("🔓 Sign In", key="login_btn", use_container_width=True)
-            with col2:
-                help_clicked = st.button("🆘 Help", key="help_btn", use_container_width=True)
-            
-            if login_clicked:
+        
+        with col2:
+            if st.button("❓ Need help?", key="help_btn"):
+                st.info("Contact your team admin for assistance.")
+        
+        if st.button("Use magic link", key="magic_link_btn", use_container_width=True):
+            st.info("Magic link feature coming soon!")
+    
+    else:
+        # Single password mode
+        password = st.text_input("Password", type="password", placeholder="Enter your password", key="login_password")
+        remember_me = st.checkbox("Remember me", key="remember_me")
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if st.button("Sign in to Dragon Mailer", key="login_btn", use_container_width=True):
                 if verify_password(password, settings.get("password_hash", "")):
                     st.session_state.authenticated = True
                     st.session_state.current_user = "admin"
@@ -1329,39 +721,44 @@ def show_login_page():
                     st.rerun()
                 else:
                     st.error("❌ Invalid password")
-            
-            if help_clicked:
-                st.markdown("""
-                    <div class="help-glass">
-                        <div class="help-glass-title">💡 Need Assistance?</div>
-                        <div class="help-glass-text">
-                            <strong>Forgot your password?</strong> Contact support for help.<br>
-                            <strong>Having issues?</strong> Try refreshing the page.
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+        
+        with col2:
+            if st.button("❓ Need help?", key="help_btn"):
+                st.info("Contact support for assistance.")
     
-    # Feature tiles with separate glass
-    st.markdown(f"""
-        <div class="features-row">
-            <div class="feature-glass">
-                <div class="feature-icon">📧</div>
-                <div class="feature-text">Email</div>
+    # Jelly slider for theme intensity
+    st.markdown("""
+    <div class="jelly-wrapper">
+        <label class="jelly-label">Theme Intensity</label>
+        <div class="gooey-container">
+            <svg width="0" height="0">
+                <filter id="gooey">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
+                    <feColorMatrix in="blur" mode="matrix"
+                        values="1 0 0 0 0
+                                0 1 0 0 0
+                                0 0 1 0 0
+                                0 0 0 20 -10"
+                        result="gooey"/>
+                    <feBlend in="SourceGraphic" in2="gooey"/>
+                </filter>
+            </svg>
+            <div class="gooey-track">
+                <div class="gooey-fill" id="gooeyFill"></div>
+                <div class="gooey-thumb" id="gooeyThumb"></div>
             </div>
-            <div class="feature-glass">
-                <div class="feature-icon">📱</div>
-                <div class="feature-text">SMS</div>
-            </div>
-            <div class="feature-glass">
-                <div class="feature-icon">☁️</div>
-                <div class="feature-text">Azure</div>
-            </div>
-            <div class="feature-glass">
-                <div class="feature-icon">🔒</div>
-                <div class="feature-text">Secure</div>
-            </div>
+            <input type="range" min="0" max="100" value="38" id="jellyRange">
+            <div class="jelly-value" id="jellyValue">38%</div>
         </div>
-        <div class="version-text">Dragon Mailer v2.0 • © 2026</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Footer
+    st.markdown("""
+    <div class="dm-footer">
+        <span class="dm-pill">New here?</span>
+        <span class="dm-invite">Request an invite from your team admin.</span>
+    </div>
     """, unsafe_allow_html=True)
 
 
@@ -4697,6 +4094,15 @@ def main():
                     success_count = sum(1 for r in results if r['success'])
                     fail_count = len(results) - success_count
                     
+                    # Show metrics with jelly styling
+                    if JELLY_AVAILABLE:
+                        col_m1, col_m2 = st.columns(2)
+                        with col_m1:
+                            jelly_metric("Emails Sent", str(success_count), f"+{success_count}", "#00ff88")
+                        with col_m2:
+                            if fail_count > 0:
+                                jelly_metric("Failed", str(fail_count), f"{fail_count}", "#ff4466")
+                    
                     if success_count > 0:
                         st.success(f"✅ Successfully sent to {success_count} recipient(s)")
                     if fail_count > 0:
@@ -5745,6 +5151,13 @@ def main():
                     theme_type = "🌙 Dark" if theme_data["type"] == "dark" else "☀️ Light"
                     st.markdown(f"- {theme_data['icon']} **{theme_name}** ({theme_type})")
             
+            # Add jelly slider for theme intensity
+            st.markdown("#### ✨ Theme Customization")
+            theme_intensity = st.slider("Theme Intensity", 0, 100, 50, key="theme_slider", 
+                                       help="Adjust the visual intensity of the theme effects")
+            if JELLY_AVAILABLE:
+                jelly_slider_display(theme_intensity, 0, 100, "Theme Intensity", "#38bdf8")
+            
             st.markdown("---")
             st.markdown("### 🔐 Login Protection")
             
@@ -5911,6 +5324,14 @@ def main():
         with col2:
             st.markdown("### 📊 Data Management")
             
+            # Add jelly slider for email rate limit
+            st.markdown("#### 📧 Email Settings")
+            rate_limit = st.slider("Email Send Rate (per minute)", 1, 60, 10, key="email_rate_limit",
+                                  help="Control how many emails can be sent per minute")
+            if JELLY_AVAILABLE:
+                jelly_slider_display(rate_limit, 1, 60, "Send Rate", "#8b5cf6")
+            
+            st.markdown("---")
             st.markdown("#### Export All Data")
             if st.button("📥 Export All Data", key="btn_export_all"):
                 all_data = {
